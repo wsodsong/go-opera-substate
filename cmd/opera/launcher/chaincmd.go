@@ -33,6 +33,8 @@ Events are fully verified by default, unless overridden by check=false flag.`,
 				ArgsUsage: "<filename> (<filename 2> ... <filename N>)",
 				Flags: []cli.Flag{
 					DataDirFlag,
+					// record-replay: geth import --substatedir flag
+					research.SubstateDirFlag,
 				},
 				Description: `
 The import command imports events from RLP-encoded files.
@@ -45,8 +47,6 @@ Events are fully verified by default, unless overridden by --check=false flag.`,
 				ArgsUsage: "<filename> (<filename 2> ... <filename N>)",
 				Flags: []cli.Flag{
 					DataDirFlag,
-					// record-replay: geth import --substatedir flag
-					research.SubstateDirFlag,
 				},
 				Description: `
     opera import evm
