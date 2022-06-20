@@ -26,9 +26,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
-
-	"github.com/Fantom-foundation/go-opera/utils/signers/gsignercache"
-	"github.com/Fantom-foundation/go-opera/utils/signers/internaltx"
+	"github.com/ethereum/go-ethereum/research"
 )
 
 // StateProcessor is a basic Processor, which takes care of transitioning
@@ -89,6 +87,16 @@ func (p *StateProcessor) Process(
 		if err != nil {
 			return nil, nil, nil, fmt.Errorf("could not apply tx %d [%v]: %w", i, tx.Hash().Hex(), err)
 		}
+
+		// record-replay: save tx substate into DBs, merge block hashes to env
+		researchSubstate := research.NewSubstate(
+			statedb.ResearchPreAlloc,
+			statedb.ResearchPostAlloc,
+			research.NewSubstateEnv(block, statedb.ResearchBlockHashes),
+			research.NewSubstateMessage(&msg),
+			research.NewSubstateResult(receipt),
+		)
+		research.PutSubstate(block.NumberU64(), i, researchSubstate)
 		receipts = append(receipts, receipt)
 		allLogs = append(allLogs, receipt.Logs...)
 	}
