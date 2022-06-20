@@ -93,10 +93,20 @@ func (p *StateProcessor) Process(
 		}
 
 		// record-replay: save tx substate into DBs, merge block hashes to env
+		//
+		// create a dummy Ethereum block; following fields needed for substates
+		//  - b.Coinbase()
+                //  - b.Difficulty())
+                //  - b.GasLimit()
+                //  - b.NumberU64()
+                //  - b.Time()
+                //  - b.BaseFee()
+
+		etherBlock := block.EthBlock()
 		researchSubstate := research.NewSubstate(
 			statedb.ResearchPreAlloc,
 			statedb.ResearchPostAlloc,
-			research.NewSubstateEnv(block, statedb.ResearchBlockHashes),
+			research.NewSubstateEnv(etherBlock, statedb.ResearchBlockHashes),
 			research.NewSubstateMessage(&msg),
 			research.NewSubstateResult(receipt),
 		)
