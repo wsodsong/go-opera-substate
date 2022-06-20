@@ -36,11 +36,6 @@ import (
 
 func importEvm(ctx *cli.Context) error {
 
-	// record-replay: importChain OpenSubstateDB
-	research.SetSubstateFlags(ctx)
-	research.OpenSubstateDB()
-	defer research.CloseSubstateDB()
-
 	if len(ctx.Args()) < 1 {
 		utils.Fatalf("This command requires an argument.")
 	}
@@ -86,6 +81,12 @@ func importEvmFile(fn string, gdb *gossip.Store) error {
 }
 
 func importEvents(ctx *cli.Context) error {
+
+	// record-replay: importChain OpenSubstateDB
+	research.SetSubstateFlags(ctx)
+	research.OpenSubstateDB()
+	defer research.CloseSubstateDB()
+
 	if len(ctx.Args()) < 1 {
 		utils.Fatalf("This command requires an argument.")
 	}
