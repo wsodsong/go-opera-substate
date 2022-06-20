@@ -3,6 +3,9 @@ package launcher
 import (
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"gopkg.in/urfave/cli.v1"
+
+	// record-replay: import research
+	"github.com/ethereum/go-ethereum/research"
 )
 
 var (
@@ -42,6 +45,8 @@ Events are fully verified by default, unless overridden by --check=false flag.`,
 				ArgsUsage: "<filename> (<filename 2> ... <filename N>)",
 				Flags: []cli.Flag{
 					DataDirFlag,
+					// record-replay: geth import --substatedir flag
+					research.SubstateDirFlag,
 				},
 				Description: `
     opera import evm

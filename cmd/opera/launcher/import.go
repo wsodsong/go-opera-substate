@@ -29,9 +29,18 @@ import (
 	"github.com/Fantom-foundation/go-opera/inter"
 	"github.com/Fantom-foundation/go-opera/opera/genesisstore"
 	"github.com/Fantom-foundation/go-opera/utils/ioread"
+
+	// record-replay: import research
+	"github.com/ethereum/go-ethereum/research"
 )
 
 func importEvm(ctx *cli.Context) error {
+
+	// record-replay: importChain OpenSubstateDB
+	research.SetSubstateFlags(ctx)
+	research.OpenSubstateDB()
+	defer research.CloseSubstateDB()
+
 	if len(ctx.Args()) < 1 {
 		utils.Fatalf("This command requires an argument.")
 	}
