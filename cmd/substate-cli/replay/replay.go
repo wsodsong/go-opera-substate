@@ -56,6 +56,7 @@ func replayTask(block uint64, tx int, substate *research.Substate, taskPool *res
 	)
 
 	vmConfig = opera.DefaultVMConfig
+	vmConfig.NoBaseFee = true
 
 	chainConfig = &params.ChainConfig{}
 	*chainConfig = *params.MainnetChainConfig
