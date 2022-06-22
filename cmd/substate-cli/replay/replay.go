@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/Fantom-foundation/go-opera/evmcore"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -80,7 +81,7 @@ func replayTask(block uint64, tx int, substate *research.Substate, taskPool *res
 	// Apply Message
 	var (
 		statedb   = MakeOffTheChainStateDB(inputAlloc)
-		gaspool   = new(core.GasPool)
+		gaspool   = new(evmcore.GasPool)
 		blockHash = common.Hash{0x01}
 		txHash    = common.Hash{0x02}
 		txIndex   = tx
@@ -120,7 +121,7 @@ func replayTask(block uint64, tx int, substate *research.Substate, taskPool *res
 	fmt.Printf("Replay block %v tx %v\n", block, tx)
 	evm := vm.NewEVM(blockCtx, txCtx, statedb, chainConfig, vmConfig)
 	snapshot := statedb.Snapshot()
-	msgResult, err := core.ApplyMessage(evm, msg, gaspool)
+	msgResult, err := evmcore.ApplyMessage(evm, msg, gaspool)
 
 	if err != nil {
 		statedb.RevertToSnapshot(snapshot)
