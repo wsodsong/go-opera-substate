@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ethereum/go-ethereum/cmd/substate-cli/db"
-	"github.com/ethereum/go-ethereum/cmd/substate-cli/replay"
+	"github.com/Fantom-foundation/go-opera/cmd/substate-cli/db"
+	"github.com/Fantom-foundation/go-opera/cmd/substate-cli/replay"
 	"github.com/Fantom-foundation/go-opera/flags"
 	cli "gopkg.in/urfave/cli.v1"
 )
