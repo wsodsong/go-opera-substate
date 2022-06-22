@@ -8,6 +8,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/Fantom-foundation/go-opera/evmcore"
+        "github.com/Fantom-foundation/go-opera/opera"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -54,7 +55,7 @@ func replayTask(block uint64, tx int, substate *research.Substate, taskPool *res
 		getTracerFn func(txIndex int, txHash common.Hash) (tracer vm.Tracer, err error)
 	)
 
-	vmConfig = vm.Config{}
+	vmConfig = opera.DefaultVMConfig
 
 	chainConfig = &params.ChainConfig{}
 	*chainConfig = *params.MainnetChainConfig
