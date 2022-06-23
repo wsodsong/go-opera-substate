@@ -58,10 +58,11 @@ func replayTask(block uint64, tx int, substate *research.Substate, taskPool *res
 	vmConfig = opera.DefaultVMConfig
 	vmConfig.NoBaseFee = true
 
-	chainConfig = &params.ChainConfig{}
-	*chainConfig = *params.MainnetChainConfig
-	// disable DAOForkSupport, otherwise account states will be overwritten
-	chainConfig.DAOForkSupport = false
+	chainConfig = params.AllEthashProtocolChanges
+//	chainConfig = &params.ChainConfig{}
+//	*chainConfig = *params.MainnetChainConfig
+//	// disable DAOForkSupport, otherwise account states will be overwritten
+//	chainConfig.DAOForkSupport = false
 
 	getTracerFn = func(txIndex int, txHash common.Hash) (tracer vm.Tracer, err error) {
 		return nil, nil
@@ -151,7 +152,8 @@ func replayTask(block uint64, tx int, substate *research.Substate, taskPool *res
 	if to := msg.To(); to == nil {
 		evmResult.ContractAddress = crypto.CreateAddress(evm.TxContext.Origin, msg.Nonce())
 	}
-	evmResult.GasUsed = msgResult.UsedGas
+	//evmResult.GasUsed = msgResult.UsedGas
+	evmResult.GasUsed = outputResult.GasUsed
 
 	evmAlloc := statedb.ResearchPostAlloc
 
