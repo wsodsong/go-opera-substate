@@ -59,6 +59,7 @@ func replayTask(block uint64, tx int, substate *research.Substate, taskPool *res
 	vmConfig.NoBaseFee = true
 
 	chainConfig = params.AllEthashProtocolChanges
+	chainConfig.ChainID = new(big.Int).SetUint64(1337)
 //	chainConfig = &params.ChainConfig{}
 //	*chainConfig = *params.MainnetChainConfig
 //	// disable DAOForkSupport, otherwise account states will be overwritten
@@ -116,13 +117,11 @@ func replayTask(block uint64, tx int, substate *research.Substate, taskPool *res
 	vmConfig.Debug = (tracer != nil)
 	statedb.Prepare(txHash, txIndex)
 
-	txCtx := vm.TxContext{
-		GasPrice: msg.GasPrice(),
-		Origin:   msg.From(),
-	}
+	txCtx := evmcore.NewEVMTxContext(msg);
 
 	fmt.Printf("Replay block %v tx %v\n", block, tx)
 	evm := vm.NewEVM(blockCtx, txCtx, statedb, chainConfig, vmConfig)
+	fmt.Printf("chainconfig: %v, vmconfig: %v\n", chainConfig, vmConfig)
 	snapshot := statedb.Snapshot()
 	msgResult, err := evmcore.ApplyMessage(evm, msg, gaspool)
 
