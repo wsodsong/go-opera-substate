@@ -59,11 +59,9 @@ func replayTask(block uint64, tx int, substate *research.Substate, taskPool *res
 	vmConfig.NoBaseFee = true
 
 	chainConfig = params.AllEthashProtocolChanges
-	chainConfig.ChainID = new(big.Int).SetUint64(1337)
-//	chainConfig = &params.ChainConfig{}
-//	*chainConfig = *params.MainnetChainConfig
-//	// disable DAOForkSupport, otherwise account states will be overwritten
-//	chainConfig.DAOForkSupport = false
+	chainConfig.ChainID = new(big.Int).SetUint64(4002)
+	chainConfig.LondonBlock = nil
+	chainConfig.BerlinBlock = nil
 
 	getTracerFn = func(txIndex int, txHash common.Hash) (tracer vm.Tracer, err error) {
 		return nil, nil
@@ -119,9 +117,8 @@ func replayTask(block uint64, tx int, substate *research.Substate, taskPool *res
 
 	txCtx := evmcore.NewEVMTxContext(msg);
 
-	fmt.Printf("Replay block %v tx %v\n", block, tx)
 	evm := vm.NewEVM(blockCtx, txCtx, statedb, chainConfig, vmConfig)
-	fmt.Printf("chainconfig: %v, vmconfig: %v\n", chainConfig, vmConfig)
+
 	snapshot := statedb.Snapshot()
 	msgResult, err := evmcore.ApplyMessage(evm, msg, gaspool)
 
