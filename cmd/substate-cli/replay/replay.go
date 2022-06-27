@@ -148,8 +148,7 @@ func replayTask(block uint64, tx int, substate *research.Substate, taskPool *res
 	if to := msg.To(); to == nil {
 		evmResult.ContractAddress = crypto.CreateAddress(evm.TxContext.Origin, msg.Nonce())
 	}
-	//evmResult.GasUsed = msgResult.UsedGas
-	evmResult.GasUsed = outputResult.GasUsed
+	evmResult.GasUsed = msgResult.UsedGas
 
 	evmAlloc := statedb.ResearchPostAlloc
 
