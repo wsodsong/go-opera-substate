@@ -165,19 +165,19 @@ func replayTask(block uint64, tx int, substate *research.Substate, taskPool *res
 		}
 		var jbytes []byte
 		jbytes, _ = json.MarshalIndent(inputAlloc, "", " ")
-		fmt.Printf("inputAlloc:\n%s\n", jbytes)
+		fmt.Printf("Recorded input substate:\n%s\n", jbytes)
 		jbytes, _ = json.MarshalIndent(inputEnv, "", " ")
-		fmt.Printf("inputEnv:\n%s\n", jbytes)
+		fmt.Printf("Recorded input environmnet:\n%s\n", jbytes)
 		jbytes, _ = json.MarshalIndent(inputMessage, "", " ")
-		fmt.Printf("inputMessage:\n%s\n", jbytes)
+		fmt.Printf("Recorded input message:\n%s\n", jbytes)
 		jbytes, _ = json.MarshalIndent(outputAlloc, "", " ")
-		fmt.Printf("outputAlloc:\n%s\n", jbytes)
+		fmt.Printf("Recorded output substate:\n%s\n", jbytes)
 		jbytes, _ = json.MarshalIndent(evmAlloc, "", " ")
-		fmt.Printf("evmAlloc:\n%s\n", jbytes)
+		fmt.Printf("Replayed output substate:\n%s\n", jbytes)
 		jbytes, _ = json.MarshalIndent(outputResult, "", " ")
-		fmt.Printf("outputResult:\n%s\n", jbytes)
+		fmt.Printf("Recorded output result:\n%s\n", jbytes)
 		jbytes, _ = json.MarshalIndent(evmResult, "", " ")
-		fmt.Printf("evmResult:\n%s\n", jbytes)
+		fmt.Printf("Replayed output result:\n%s\n", jbytes)
 		return fmt.Errorf("inconsistent output")
 	}
 
