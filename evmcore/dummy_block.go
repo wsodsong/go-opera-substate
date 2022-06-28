@@ -113,7 +113,8 @@ func (h *EvmHeader) EthHeader() *types.Header {
 	ethHeader := &types.Header{
 		Number:     h.Number,
 		Coinbase:   h.Coinbase,
-		GasLimit:   0xffffffffffff, // don't use h.GasLimit (too much bits) here to avoid parsing issues
+		// GasLimit:   0xffffffffffff, // don't use h.GasLimit (too much bits) here to avoid parsing issues
+		GasLimit:   h.GasLimit,
 		GasUsed:    h.GasUsed,
 		Root:       h.Root,
 		TxHash:     h.TxHash,
@@ -122,7 +123,8 @@ func (h *EvmHeader) EthHeader() *types.Header {
 		Extra:      h.Hash.Bytes(),
 		BaseFee:    h.BaseFee,
 
-		Difficulty: new(big.Int),
+		// Difficulty: new(big.Int),
+		Difficulty: big.NewInt(1),
 	}
 	ethHeader.SetExternalHash(h.Hash)
 	return ethHeader

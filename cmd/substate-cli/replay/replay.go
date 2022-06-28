@@ -115,7 +115,7 @@ func replayTask(block uint64, tx int, substate *research.Substate, taskPool *res
 	vmConfig.Debug = (tracer != nil)
 	statedb.Prepare(txHash, txIndex)
 
-	txCtx := evmcore.NewEVMTxContext(msg);
+	txCtx := evmcore.NewEVMTxContext(msg)
 
 	evm := vm.NewEVM(blockCtx, txCtx, statedb, chainConfig, vmConfig)
 
