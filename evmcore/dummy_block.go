@@ -105,15 +105,13 @@ func ConvertFromEthHeader(h *types.Header) *EvmHeader {
 }
 
 // EthHeader returns header in ETH format
-func (h *EvmHeader) EthHeader() *types.Header {
+func (h *EvmHeader) RecordingEthHeader() *types.Header {
 	if h == nil {
 		return nil
 	}
-	// NOTE: incomplete conversion
 	ethHeader := &types.Header{
 		Number:     h.Number,
 		Coinbase:   h.Coinbase,
-		// GasLimit:   0xffffffffffff, // don't use h.GasLimit (too much bits) here to avoid parsing issues
 		GasLimit:   h.GasLimit,
 		GasUsed:    h.GasUsed,
 		Root:       h.Root,
@@ -122,9 +120,31 @@ func (h *EvmHeader) EthHeader() *types.Header {
 		Time:       uint64(h.Time.Unix()),
 		Extra:      h.Hash.Bytes(),
 		BaseFee:    h.BaseFee,
-
-		// Difficulty: new(big.Int),
 		Difficulty: big.NewInt(1),
+	}
+	ethHeader.SetExternalHash(h.Hash)
+	return ethHeader
+}
+
+// EthHeader returns header in ETH format
+func (h *EvmHeader) EthHeader() *types.Header {
+	if h == nil {
+		return nil
+	}
+	// NOTE: incomplete conversion
+	ethHeader := &types.Header{
+		Number:     h.Number,
+		Coinbase:   h.Coinbase,
+		GasLimit:   0xffffffffffff, // don't use h.GasLimit (too much bits) here to avoid parsing issues
+		GasUsed:    h.GasUsed,
+		Root:       h.Root,
+		TxHash:     h.TxHash,
+		ParentHash: h.ParentHash,
+		Time:       uint64(h.Time.Unix()),
+		Extra:      h.Hash.Bytes(),
+		BaseFee:    h.BaseFee,
+
+		Difficulty: new(big.Int),
 	}
 	ethHeader.SetExternalHash(h.Hash)
 	return ethHeader
@@ -155,6 +175,13 @@ func (b *EvmBlock) EthBlock() *types.Block {
 		return nil
 	}
 	return types.NewBlock(b.EvmHeader.EthHeader(), b.Transactions, nil, nil, trie.NewStackTrie(nil))
+}
+
+func (b *EvmBlock) RecordingEthBlock() *types.Block {
+	if b == nil {
+		return nil
+	}
+	return types.NewBlock(b.EvmHeader.RecordingEthHeader(), b.Transactions, nil, nil, trie.NewStackTrie(nil))
 }
 
 func (b *EvmBlock) EstimateSize() int {

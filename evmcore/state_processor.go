@@ -103,7 +103,7 @@ func (p *StateProcessor) Process(
                 //  - b.Time()
                 //  - b.BaseFee()
 
-		etherBlock := block.EthBlock()
+		etherBlock := block.RecordingEthBlock()
 		recording := substate.NewSubstate(
 			statedb.SubstatePreAlloc,
 			statedb.SubstatePostAlloc,
