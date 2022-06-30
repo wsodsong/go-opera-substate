@@ -26,11 +26,11 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/ethereum/go-ethereum/substate"
 
 	"github.com/Fantom-foundation/go-opera/utils/signers/gsignercache"
 	"github.com/Fantom-foundation/go-opera/utils/signers/internaltx"
 
-	"github.com/ethereum/go-ethereum/research"
 )
 
 // StateProcessor is a basic Processor, which takes care of transitioning
@@ -104,14 +104,14 @@ func (p *StateProcessor) Process(
                 //  - b.BaseFee()
 
 		etherBlock := block.EthBlock()
-		researchSubstate := research.NewSubstate(
-			statedb.ResearchPreAlloc,
-			statedb.ResearchPostAlloc,
-			research.NewSubstateEnv(etherBlock, statedb.ResearchBlockHashes),
-			research.NewSubstateMessage(&msg),
-			research.NewSubstateResult(receipt),
+		recording := substate.NewSubstate(
+			statedb.SubstatePreAlloc,
+			statedb.SubstatePostAlloc,
+			substate.NewSubstateEnv(etherBlock, statedb.SubstateBlockHashes),
+			substate.NewSubstateMessage(&msg),
+			substate.NewSubstateResult(receipt),
 		)
-		research.PutSubstate(block.NumberU64(), i, researchSubstate)
+		substate.PutSubstate(block.NumberU64(), i, recording)
 		receipts = append(receipts, receipt)
 		allLogs = append(allLogs, receipt.Logs...)
 	}

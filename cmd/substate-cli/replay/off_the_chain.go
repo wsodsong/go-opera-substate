@@ -7,7 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/rawdb"
 	"github.com/ethereum/go-ethereum/core/state"
-	"github.com/ethereum/go-ethereum/research"
+	"github.com/ethereum/go-ethereum/substate"
 	"github.com/ethereum/go-ethereum/trie"
 )
 
@@ -96,7 +96,7 @@ func NewOffTheChainStateDB() *state.StateDB {
 }
 
 // MakeOffTheChainStateDB returns an in-memory *state.StateDB initialized with alloc
-func MakeOffTheChainStateDB(alloc research.SubstateAlloc) *state.StateDB {
+func MakeOffTheChainStateDB(alloc substate.SubstateAlloc) *state.StateDB {
 	statedb := NewOffTheChainStateDB()
 	for addr, a := range alloc {
 		statedb.SetCode(addr, a.Code)
