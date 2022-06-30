@@ -30,6 +30,7 @@ var ReplayCommand = cli.Command{
 		substate.SkipCallTxsFlag,
 		substate.SkipCreateTxsFlag,
 		substate.SubstateDirFlag,
+		substate.ChainIDFlag,
 	},
 	Description: `
 The substate-cli replay command requires two arguments:
@@ -59,7 +60,11 @@ func replayTask(block uint64, tx int, recording *substate.Substate, taskPool *su
 	vmConfig.NoBaseFee = true
 
 	chainConfig = params.AllEthashProtocolChanges
-	chainConfig.ChainID = new(big.Int).SetUint64(4002)
+	chainID, cerr := strconv.ParseInt(substate.ChainIDFlag.Name, 10, 64)
+	if cerr != nil {
+		return fmt.Errorf("substate-cli replay: error in parsing chain-id")
+	}
+	chainConfig.ChainID = new(big.Int).SetInt64(chainID)
 	chainConfig.LondonBlock = nil
 	chainConfig.BerlinBlock = nil
 
