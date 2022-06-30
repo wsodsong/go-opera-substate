@@ -16,7 +16,6 @@ var (
 		Usage:       "A set of commands on substate DB",
 		Description: "",
 		Subcommands: []cli.Command{
-			db.UpgradeCommand,
 			db.CloneCommand,
 			db.CompactCommand,
 		},
