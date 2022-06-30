@@ -20,6 +20,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/ethereum/go-ethereum/substate"
 	"github.com/status-im/keycard-go/hexutils"
 	"gopkg.in/urfave/cli.v1"
 
@@ -30,8 +31,6 @@ import (
 	"github.com/Fantom-foundation/go-opera/opera/genesisstore"
 	"github.com/Fantom-foundation/go-opera/utils/ioread"
 
-	// record-replay: import research
-	"github.com/ethereum/go-ethereum/research"
 )
 
 func importEvm(ctx *cli.Context) error {
@@ -83,9 +82,9 @@ func importEvmFile(fn string, gdb *gossip.Store) error {
 func importEvents(ctx *cli.Context) error {
 
 	// record-replay: importChain OpenSubstateDB
-	research.SetSubstateFlags(ctx)
-	research.OpenSubstateDB()
-	defer research.CloseSubstateDB()
+	substate.SetSubstateFlags(ctx)
+	substate.OpenSubstateDB()
+	defer substate.CloseSubstateDB()
 
 	if len(ctx.Args()) < 1 {
 		utils.Fatalf("This command requires an argument.")

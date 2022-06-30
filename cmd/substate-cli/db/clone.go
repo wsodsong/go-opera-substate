@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/ethereum/go-ethereum/core/rawdb"
-	"github.com/ethereum/go-ethereum/research"
+	"github.com/ethereum/go-ethereum/substate"
 	cli "gopkg.in/urfave/cli.v1"
 )
 
@@ -15,7 +15,7 @@ var CloneCommand = cli.Command{
 	Usage:     "Create a clone DB of a given range of blocks",
 	ArgsUsage: "<srcPath> <dstPath> <blockNumFirst> <blockNumLast>",
 	Flags: []cli.Flag{
-		research.WorkersFlag,
+		substate.WorkersFlag,
 	},
 	Description: `
 The substate-cli db clone command requires four arguments:
@@ -51,7 +51,7 @@ func clone(ctx *cli.Context) error {
 	if err != nil {
 		return fmt.Errorf("substate-cli db clone: error opening %s: %v", srcPath, err)
 	}
-	srcDB := research.NewSubstateDB(srcBackend)
+	srcDB := substate.NewSubstateDB(srcBackend)
 	defer srcDB.Close()
 
 	// Create dst DB
@@ -59,15 +59,15 @@ func clone(ctx *cli.Context) error {
 	if err != nil {
 		return fmt.Errorf("substate-cli db clone: error creating %s: %v", dstPath, err)
 	}
-	dstDB := research.NewSubstateDB(dstBackend)
+	dstDB := substate.NewSubstateDB(dstBackend)
 	defer dstDB.Close()
 
-	cloneTask := func(block uint64, tx int, substate *research.Substate, taskPool *research.SubstateTaskPool) error {
+	cloneTask := func(block uint64, tx int, substate *substate.Substate, taskPool *substate.SubstateTaskPool) error {
 		dstDB.PutSubstate(block, tx, substate)
 		return nil
 	}
 
-	taskPool := research.NewSubstateTaskPool("substate-cli db clone", cloneTask, uint64(first), uint64(last), ctx)
+	taskPool := substate.NewSubstateTaskPool("substate-cli db clone", cloneTask, uint64(first), uint64(last), ctx)
 	taskPool.DB = srcDB
 	err = taskPool.Execute()
 	return err

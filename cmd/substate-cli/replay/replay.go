@@ -8,13 +8,13 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/Fantom-foundation/go-opera/evmcore"
-        "github.com/Fantom-foundation/go-opera/opera"
+    "github.com/Fantom-foundation/go-opera/opera"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/ethereum/go-ethereum/research"
+	"github.com/ethereum/go-ethereum/substate"
 	cli "gopkg.in/urfave/cli.v1"
 )
 
@@ -25,11 +25,11 @@ var ReplayCommand = cli.Command{
 	Usage:     "executes full state transitions and check output consistency",
 	ArgsUsage: "<blockNumFirst> <blockNumLast>",
 	Flags: []cli.Flag{
-		research.WorkersFlag,
-		research.SkipTransferTxsFlag,
-		research.SkipCallTxsFlag,
-		research.SkipCreateTxsFlag,
-		research.SubstateDirFlag,
+		substate.WorkersFlag,
+		substate.SkipTransferTxsFlag,
+		substate.SkipCallTxsFlag,
+		substate.SkipCreateTxsFlag,
+		substate.SubstateDirFlag,
 	},
 	Description: `
 The substate-cli replay command requires two arguments:
@@ -40,14 +40,14 @@ last block of the inclusive range of blocks to replay transactions.`,
 }
 
 // replayTask replays a transaction substate
-func replayTask(block uint64, tx int, substate *research.Substate, taskPool *research.SubstateTaskPool) error {
+func replayTask(block uint64, tx int, recording *substate.Substate, taskPool *substate.SubstateTaskPool) error {
 
-	inputAlloc := substate.InputAlloc
-	inputEnv := substate.Env
-	inputMessage := substate.Message
+	inputAlloc := recording.InputAlloc
+	inputEnv := recording.Env
+	inputMessage := recording.Message
 
-	outputAlloc := substate.OutputAlloc
-	outputResult := substate.Result
+	outputAlloc := recording.OutputAlloc
+	outputResult := recording.Result
 
 	var (
 		vmConfig    vm.Config
@@ -137,7 +137,7 @@ func replayTask(block uint64, tx int, substate *research.Substate, taskPool *res
 		statedb.IntermediateRoot(chainConfig.IsEIP158(blockCtx.BlockNumber))
 	}
 
-	evmResult := &research.SubstateResult{}
+	evmResult := &substate.SubstateResult{}
 	if msgResult.Failed() {
 		evmResult.Status = types.ReceiptStatusFailed
 	} else {
@@ -150,7 +150,7 @@ func replayTask(block uint64, tx int, substate *research.Substate, taskPool *res
 	}
 	evmResult.GasUsed = msgResult.UsedGas
 
-	evmAlloc := statedb.ResearchPostAlloc
+	evmAlloc := statedb.SubstatePostAlloc
 
 	r := outputResult.Equal(evmResult)
 	a := outputAlloc.Equal(evmAlloc)
@@ -203,11 +203,11 @@ func replayAction(ctx *cli.Context) error {
 		return fmt.Errorf("substate-cli replay: error: first block has larger number than last block")
 	}
 
-	research.SetSubstateFlags(ctx)
-	research.OpenSubstateDBReadOnly()
-	defer research.CloseSubstateDB()
+	substate.SetSubstateFlags(ctx)
+	substate.OpenSubstateDBReadOnly()
+	defer substate.CloseSubstateDB()
 
-	taskPool := research.NewSubstateTaskPool("substate-cli replay", replayTask, uint64(first), uint64(last), ctx)
+	taskPool := substate.NewSubstateTaskPool("substate-cli replay", replayTask, uint64(first), uint64(last), ctx)
 	err = taskPool.Execute()
 	return err
 }

@@ -2,10 +2,8 @@ package launcher
 
 import (
 	"github.com/ethereum/go-ethereum/cmd/utils"
+	"github.com/ethereum/go-ethereum/substate"
 	"gopkg.in/urfave/cli.v1"
-
-	// record-replay: import research
-	"github.com/ethereum/go-ethereum/research"
 )
 
 var (
@@ -34,7 +32,7 @@ Events are fully verified by default, unless overridden by check=false flag.`,
 				Flags: []cli.Flag{
 					DataDirFlag,
 					// record-replay: geth import --substatedir flag
-					research.SubstateDirFlag,
+					substate.SubstateDirFlag,
 				},
 				Description: `
 The import command imports events from RLP-encoded files.
