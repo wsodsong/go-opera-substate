@@ -82,9 +82,12 @@ func importEvmFile(fn string, gdb *gossip.Store) error {
 func importEvents(ctx *cli.Context) error {
 
 	// record-replay: importChain OpenSubstateDB
-	substate.SetSubstateFlags(ctx)
-	substate.OpenSubstateDB()
-	defer substate.CloseSubstateDB()
+	if substate.RecordFlag {
+		substate.RecordReplay = true
+		substate.SetSubstateFlags(ctx)
+		substate.OpenSubstateDB()
+		defer substate.CloseSubstateDB()
+	}
 
 	if len(ctx.Args()) < 1 {
 		utils.Fatalf("This command requires an argument.")

@@ -39,6 +39,7 @@ func init() {
 }
 
 func main() {
+	substate.RecordReplay = true
 	if err := app.Run(os.Args); err != nil {
 		code := 1
 		fmt.Fprintln(os.Stderr, err)
