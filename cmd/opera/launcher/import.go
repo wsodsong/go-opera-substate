@@ -82,7 +82,7 @@ func importEvmFile(fn string, gdb *gossip.Store) error {
 func importEvents(ctx *cli.Context) error {
 
 	// record-replay: importChain OpenSubstateDB
-	if substate.RecordFlag {
+	if ctx.GlobalBool(substate.RecordingFlag.Name) {
 		substate.RecordReplay = true
 		substate.SetSubstateFlags(ctx)
 		substate.OpenSubstateDB()
