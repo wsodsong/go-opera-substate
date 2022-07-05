@@ -92,26 +92,18 @@ func (p *StateProcessor) Process(
 		if err != nil {
 			return nil, nil, nil, fmt.Errorf("could not apply tx %d [%v]: %w", i, tx.Hash().Hex(), err)
 		}
-
-		// record-replay: save tx substate into DBs, merge block hashes to env
-		//
-		// create a dummy Ethereum block; following fields needed for substates
-		//  - b.Coinbase()
-                //  - b.Difficulty())
-                //  - b.GasLimit()
-                //  - b.NumberU64()
-                //  - b.Time()
-                //  - b.BaseFee()
-
-		etherBlock := block.RecordingEthBlock()
-		recording := substate.NewSubstate(
-			statedb.SubstatePreAlloc,
-			statedb.SubstatePostAlloc,
-			substate.NewSubstateEnv(etherBlock, statedb.SubstateBlockHashes),
-			substate.NewSubstateMessage(&msg),
-			substate.NewSubstateResult(receipt),
-		)
-		substate.PutSubstate(block.NumberU64(), i, recording)
+		if substate.RecordReplay { 
+			// save tx substate into DBs, merge block hashes to env
+			etherBlock := block.RecordingEthBlock()
+			recording := substate.NewSubstate(
+				statedb.SubstatePreAlloc,
+				statedb.SubstatePostAlloc,
+				substate.NewSubstateEnv(etherBlock, statedb.SubstateBlockHashes),
+				substate.NewSubstateMessage(&msg),
+				substate.NewSubstateResult(receipt),
+			)
+			substate.PutSubstate(block.NumberU64(), i, recording)
+	        }
 		receipts = append(receipts, receipt)
 		allLogs = append(allLogs, receipt.Logs...)
 	}

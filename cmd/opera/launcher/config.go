@@ -80,6 +80,7 @@ var (
 		Usage: "Allow to use experimental genesis file.",
 	}
 
+
 	RPCGlobalGasCapFlag = cli.Uint64Flag{
 		Name:  "rpc.gascap",
 		Usage: "Sets a cap on gas that can be used in ftm_call/estimateGas (0=infinite)",
@@ -103,6 +104,12 @@ var (
 	ExitWhenEpochFlag = cli.Uint64Flag{
 		Name:  "exitwhensynced.epoch",
 		Usage: "Exits after synchronisation reaches the required epoch",
+	}
+
+	// Record/replay
+	RecordingFlag = cli.BoolFlag{
+		Name:  "recording",
+		Usage: "Enable recording for record/replay mechanism.",
 	}
 )
 
