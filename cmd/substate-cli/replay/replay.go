@@ -8,7 +8,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/Fantom-foundation/go-opera/evmcore"
-    "github.com/Fantom-foundation/go-opera/opera"
+	"github.com/Fantom-foundation/go-opera/opera"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -17,6 +17,14 @@ import (
 	"github.com/ethereum/go-ethereum/substate"
 	cli "gopkg.in/urfave/cli.v1"
 )
+
+// chain id
+var chainID int
+var ChainIDFlag = cli.IntFlag{
+		Name:  "chainid",
+		Usage: "ChainID for replayer",
+		Value: 250,
+	}
 
 // record-replay: substate-cli replay command
 var ReplayCommand = cli.Command{
@@ -30,7 +38,7 @@ var ReplayCommand = cli.Command{
 		substate.SkipCallTxsFlag,
 		substate.SkipCreateTxsFlag,
 		substate.SubstateDirFlag,
-		substate.ChainIDFlag,
+		ChainIDFlag,
 	},
 	Description: `
 The substate-cli replay command requires two arguments:
@@ -60,11 +68,7 @@ func replayTask(block uint64, tx int, recording *substate.Substate, taskPool *su
 	vmConfig.NoBaseFee = true
 
 	chainConfig = params.AllEthashProtocolChanges
-	chainID, cerr := strconv.ParseInt(substate.ChainIDFlag.Name, 10, 64)
-	if cerr != nil {
-		return fmt.Errorf("substate-cli replay: error in parsing chain-id")
-	}
-	chainConfig.ChainID = new(big.Int).SetInt64(chainID)
+	chainConfig.ChainID = big.NewInt(int64(chainID))
 	chainConfig.LondonBlock = nil
 	chainConfig.BerlinBlock = nil
 
@@ -195,6 +199,9 @@ func replayAction(ctx *cli.Context) error {
 	if len(ctx.Args()) != 2 {
 		return fmt.Errorf("substate-cli replay command requires exactly 2 arguments")
 	}
+
+	chainID = ctx.Int(ChainIDFlag.Name)
+	fmt.Printf("Chain ID:%v\n",chainID)
 
 	first, ferr := strconv.ParseInt(ctx.Args().Get(0), 10, 64)
 	last, lerr := strconv.ParseInt(ctx.Args().Get(1), 10, 64)
