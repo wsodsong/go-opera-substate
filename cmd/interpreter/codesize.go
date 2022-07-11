@@ -36,8 +36,11 @@ import (
 type CodeStats struct {
 	Max int
 	Min int
-	Avg float64
 	Count uint64
+	Nonce uint64
+	InCreateTx bool
+	InCallTx bool
+	InTransferTx bool
 }
 
 var (
@@ -46,11 +49,38 @@ var (
 	verboseOpt = flag.Bool("verbose", false, "verbose")
 )
 
+const (
+	CreateTx   int = iota
+	TransferTx int = iota
+	CallTx 	   int = iota
+	UnknownTx  int = iota
+)
+
+func GetTxType (to *common.Address, alloc substate.SubstateAlloc) int{
+	if (to == nil) {
+		return CreateTx
+	} 
+	account, hasReceiver := alloc[*to]
+	if (to != nil && (!hasReceiver || len(account.Code) == 0)) {
+		return TransferTx
+	}
+	if (to != nil && (hasReceiver && len(account.Code) > 0)) {
+		return CallTx
+	}
+	return  UnknownTx
+}
+
+func Btoi(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
+}
+
 func main() {
         fmt.Println("metric: start.")
 
-	codeSizes := make(map[common.Address]CodeStats)
-	maxNonce := make(map[common.Address]uint64)
+	accountStats := make(map[common.Address]CodeStats)
 	flag.Parse()
         first := uint64(*firstBlock)
         last := uint64(*lastBlock)
@@ -58,8 +88,8 @@ func main() {
 
 	fmt.Printf("metric: from block %v to block %v\n", first, last)
 
-	research.OpenSubstateDBReadOnly()
-	defer research.CloseSubstateDB()
+	substate.OpenSubstateDBReadOnly()
+	defer substate.CloseSubstateDB()
 	//contractCreationMap = make(map[uint64]uint64)
 
 	start := time.Now()
@@ -69,38 +99,50 @@ func main() {
 			fmt.Printf("metric: elapsed time: %v, number = %v\n", duration.Round(1*time.Millisecond), block)
 		}
 		for tx := 0; ; tx++ {
-			if !research.HasSubstate(block, tx) {
+			if !substate.HasSubstate(block, tx) {
 				break
 			}
-			substate := research.GetSubstate(block, tx)
-			for wallet, inputAccount := range substate.InputAlloc {
-				if stat, found := codeSizes[wallet];  !found {
-					codeSizes[wallet] = CodeStats{len(inputAccount.Code), len(inputAccount.Code), float64(len(inputAccount.Code)), 1}
+			ss := substate.GetSubstate(block, tx)
+			to := ss.Message.To
+			txType := GetTxType (to, ss.InputAlloc)
+			for wallet, inputAccount := range ss.InputAlloc {
+				newCodeSize := len(inputAccount.Code)
+				if stat, found := accountStats[wallet];  !found {
+					accountStats[wallet] = CodeStats{newCodeSize, 
+									newCodeSize, 
+									1, 
+									inputAccount.Nonce,
+									txType == CreateTx,
+									txType == TransferTx,
+									txType == CallTx}
 				} else {
-					newCodeSize := len(inputAccount.Code)
-					stat.Avg = (stat.Avg * float64(stat.Count) + float64(newCodeSize)) / (float64(stat.Count)  + 1)
 					stat.Count++
-					if stat.Max < len(inputAccount.Code) {
-						stat.Max = len(inputAccount.Code)
-					} else if stat.Min > len(inputAccount.Code) {
-						stat.Min = len(inputAccount.Code)
+					stat.InCreateTx = stat.InCreateTx || (txType == CreateTx)
+					stat.InTransferTx = stat.InTransferTx || (txType == TransferTx)
+					stat.InCallTx   = stat.InCallTx || (txType == CallTx)
+					if stat.Max < newCodeSize {
+						stat.Max = newCodeSize
+					} else if stat.Min > newCodeSize {
+						stat.Min = newCodeSize
 					}
-					codeSizes[wallet] = stat
+					if stat.Nonce < inputAccount.Nonce {
+						stat.Nonce = inputAccount.Nonce
+					}
+					accountStats[wallet] = stat
 				}
-				if val, found := maxNonce[wallet];  !found || val < inputAccount.Nonce {
-					maxNonce[wallet] = inputAccount.Nonce
-				}
+
 				if verbose {
-					fmt.Printf("metric: data %v %v %v\tcode %d,%d %d\tnonce %d->%d\n", 
-							block, 
+					fmt.Printf("%v,%v,%v,%d,%d,%d,%d,%d\n",
+							block,
 							tx,
-							wallet.Hex(), 
-							codeSizes[wallet].Max,
-							codeSizes[wallet].Min,
-							codeSizes[wallet].Count,
-							inputAccount.Nonce,
-							maxNonce[wallet])
-					}
+							wallet.Hex(),
+							accountStats[wallet].Max,
+							accountStats[wallet].Min,
+							accountStats[wallet].Count,
+							accountStats[wallet].Nonce,
+							txType,
+						)
+				}
 			}
 		}
 	}
@@ -109,34 +151,23 @@ func main() {
 		fmt.Errorf("failed to create file %s", err)
 	}
 	codeSizeWriter := csv.NewWriter(codeSizeFile)
-	for wallet, codesize := range codeSizes {
+	for wallet, codesize := range accountStats {
+		
 		err := codeSizeWriter.Write([]string{fmt.Sprintf("%v",
 						strings.ToLower(wallet.Hex())), 
 						fmt.Sprintf("%d", codesize.Max),
 						fmt.Sprintf("%d", codesize.Min),
-						fmt.Sprintf("%.0f", codesize.Avg),
 						fmt.Sprintf("%d", codesize.Count),
+						fmt.Sprintf("%d", codesize.Nonce),
+						fmt.Sprintf("%d", Btoi(codesize.InCreateTx)),
+						fmt.Sprintf("%d", Btoi(codesize.InTransferTx)),
+						fmt.Sprintf("%d", Btoi(codesize.InCallTx)),
 					})
-		//fmt.Printf("%v,%d\n", strings.ToLower(wallet.Hex()), codesize)
 		if err != nil {
 			panic(err)
 		}
 	}
 	codeSizeWriter.Flush()
-	nonceFile, err := os.Create("nonce.csv")
-	if err != nil {
-		fmt.Errorf("failed to create file %s", err)
-	}
-	nonceWriter := csv.NewWriter(nonceFile)
-	for wallet, nonce := range maxNonce {
-		err := nonceWriter.Write([]string{fmt.Sprintf("%v",strings.ToLower(wallet.Hex())), fmt.Sprintf("%d", nonce)})
-		//fmt.Printf("%v,%d\n", strings.ToLower(wallet.Hex()), nonce)
-		if err != nil {
-			panic(err)
-		}
-	}
-	nonceWriter.Flush()
-        //research.CloseSubstateDB()
         fmt.Println("metric: end.")
 }
 

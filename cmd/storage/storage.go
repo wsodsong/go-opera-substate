@@ -84,8 +84,8 @@ func main() {
 
 	fmt.Printf("metric: from block %v to block %v\n", first, last)
 
-	research.OpenSubstateDBReadOnly()
-	defer research.CloseSubstateDB()
+	substate.OpenSubstateDBReadOnly()
+	defer substate.CloseSubstateDB()
 	//contractCreationMap = make(map[uint64]uint64)
 
 	start := time.Now()
@@ -95,34 +95,34 @@ func main() {
 			fmt.Printf("metric: elapsed time: %v, number = %v\n", duration.Round(1*time.Millisecond), block)
 		}
 		for tx := 0; ; tx++ {
-			if !research.HasSubstate(block, tx) {
+			if !substate.HasSubstate(block, tx) {
 				break
 			}
-			substate := research.GetSubstate(block, tx)
-			timestamp := substate.Env.Timestamp
-			for wallet, outputAccount := range substate.OutputAlloc {
+			ss := substate.GetSubstate(block, tx)
+			timestamp := ss.Env.Timestamp
+			for wallet, outputAccount := range ss.OutputAlloc {
 				var ( deltaSize int64
 				      inUpdateSize uint64
 				      outUpdateSize uint64 )
-				if inputAccount, found := substate.InputAlloc[wallet]; found {
+				if inputAccount, found := ss.InputAlloc[wallet]; found {
 					deltaSize, inUpdateSize, outUpdateSize = computeStorageSizes(inputAccount.Storage, outputAccount.Storage)
 				} else {
 					deltaSize, inUpdateSize, outUpdateSize = computeStorageSizes(map[common.Hash]common.Hash{}, outputAccount.Storage)
 				}
 				fmt.Printf("metric: data %v %v %v %v %v %v %v\n",block,timestamp,tx,strings.ToLower(wallet.Hex()),deltaSize * 32, inUpdateSize * 32, outUpdateSize * 32)
 			}
-			for wallet, inputAccount := range substate.InputAlloc {
+			for wallet, inputAccount := range ss.InputAlloc {
 				var ( deltaSize int64
 				      inUpdateSize uint64
 				      outUpdateSize uint64 )
-				if _, found := substate.OutputAlloc[wallet]; !found {
+				if _, found := ss.OutputAlloc[wallet]; !found {
 					deltaSize, inUpdateSize, outUpdateSize = computeStorageSizes(inputAccount.Storage, map[common.Hash]common.Hash{})
 					fmt.Printf("metric: data %v %v %v %v %v %v %v\n",block,timestamp,tx,strings.ToLower(wallet.Hex()),deltaSize * 32, inUpdateSize * 32, outUpdateSize * 32)
 				}
 			}
 		}
 	}
-        //research.CloseSubstateDB()
+        //substate.CloseSubstateDB()
         fmt.Println("metric: end.")
 }
 
