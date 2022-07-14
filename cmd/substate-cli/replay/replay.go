@@ -69,8 +69,8 @@ func replayTask(block uint64, tx int, recording *substate.Substate, taskPool *su
 
 	chainConfig = params.AllEthashProtocolChanges
 	chainConfig.ChainID = big.NewInt(int64(chainID))
-	chainConfig.LondonBlock = nil
-	chainConfig.BerlinBlock = nil
+	chainConfig.LondonBlock = new(big.Int).SetUint64(37534833)
+	chainConfig.BerlinBlock = new(big.Int).SetUint64(37455223)
 
 	getTracerFn = func(txIndex int, txHash common.Hash) (tracer vm.Tracer, err error) {
 		return nil, nil
