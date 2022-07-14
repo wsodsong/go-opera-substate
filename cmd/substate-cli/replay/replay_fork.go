@@ -16,7 +16,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/ethereum/go-ethereum/research"
+	"github.com/ethereum/go-ethereum/substate"
 	"github.com/ethereum/go-ethereum/tests"
 	cli "gopkg.in/urfave/cli.v1"
 )
@@ -28,12 +28,12 @@ var ReplayForkCommand = cli.Command{
 	Usage:     "executes and check output consistency of all transactions in the range with the given hard-fork",
 	ArgsUsage: "<blockNumFirst> <blockNumLast>",
 	Flags: []cli.Flag{
-		research.WorkersFlag,
-		research.SkipTransferTxsFlag,
-		research.SkipCallTxsFlag,
-		research.SkipCreateTxsFlag,
+		substate.WorkersFlag,
+		substate.SkipTransferTxsFlag,
+		substate.SkipCallTxsFlag,
+		substate.SkipCreateTxsFlag,
 		HardForkFlag,
-		research.SubstateDirFlag,
+		substate.SubstateDirFlag,
 	},
 	Description: `
 The replay-fork command requires two arguments:
@@ -107,28 +107,28 @@ var (
 	ErrReplayForkMisc         = errors.New("misc in replay-fork")
 )
 
-func replayForkTask(block uint64, tx int, substate *research.Substate, taskPool *research.SubstateTaskPool) error {
+func replayForkTask(block uint64, tx int, recording *substate.Substate, taskPool *substate.SubstateTaskPool) error {
 	var stat *ReplayForkStat
 	defer func() {
 		if stat != nil {
 			ReplayForkStatChan <- stat
 		}
 	}()
-	inputAlloc := substate.InputAlloc
-	inputEnv := substate.Env
-	inputMessage := substate.Message
+	inputAlloc := recording.InputAlloc
+	inputEnv := recording.Env
+	inputMessage := recording.Message
 
-	outputAlloc := substate.OutputAlloc
-	outputResult := substate.Result
+	outputAlloc := recording.OutputAlloc
+	outputResult := recording.Result
 
 	var (
 		vmConfig    vm.Config
-		getTracerFn func(txIndex int, txHash common.Hash) (tracer vm.EVMLogger, err error)
+		getTracerFn func(txIndex int, txHash common.Hash) (tracer vm.Tracer, err error)
 	)
 
 	vmConfig = vm.Config{}
 
-	getTracerFn = func(txIndex int, txHash common.Hash) (tracer vm.EVMLogger, err error) {
+	getTracerFn = func(txIndex int, txHash common.Hash) (tracer vm.Tracer, err error) {
 		return nil, nil
 	}
 
@@ -205,7 +205,7 @@ func replayForkTask(block uint64, tx int, substate *research.Substate, taskPool 
 		statedb.IntermediateRoot(chainConfig.IsEIP158(blockCtx.BlockNumber))
 	}
 
-	evmResult := &research.SubstateResult{}
+	evmResult := &substate.SubstateResult{}
 	if msgResult.Failed() {
 		evmResult.Status = types.ReceiptStatusFailed
 	} else {
@@ -218,7 +218,7 @@ func replayForkTask(block uint64, tx int, substate *research.Substate, taskPool 
 	}
 	evmResult.GasUsed = msgResult.UsedGas
 
-	evmAlloc := statedb.ResearchPostAlloc
+	evmAlloc := statedb.SubstatePostAlloc
 
 	if r, a := outputResult.Equal(evmResult), outputAlloc.Equal(evmAlloc); !(r && a) {
 		if outputResult.Status == types.ReceiptStatusSuccessful &&
@@ -376,9 +376,9 @@ func replayForkAction(ctx *cli.Context) error {
 		*ReplayForkChainConfig = *tests.Forks["London"]
 	}
 
-	research.SetSubstateFlags(ctx)
-	research.OpenSubstateDBReadOnly()
-	defer research.CloseSubstateDB()
+	substate.SetSubstateFlags(ctx)
+	substate.OpenSubstateDBReadOnly()
+	defer substate.CloseSubstateDB()
 
 	statWg := &sync.WaitGroup{}
 	statWg.Add(1)
@@ -399,7 +399,7 @@ func replayForkAction(ctx *cli.Context) error {
 		statWg.Done()
 	}()
 
-	taskPool := research.NewSubstateTaskPool("substate-cli replay-fork", replayForkTask, uint64(first), uint64(last), ctx)
+	taskPool := substate.NewSubstateTaskPool("substate-cli replay-fork", replayForkTask, uint64(first), uint64(last), ctx)
 	err = taskPool.Execute()
 	if err == nil {
 		close(ReplayForkStatChan)
