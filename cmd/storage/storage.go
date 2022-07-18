@@ -53,7 +53,9 @@ func computeStorageSizes(inUpdateSet map[common.Hash]common.Hash, outUpdateSet m
 		} else {
 			// storage increases by one new cell
 			// (cell is not found in in-storage but found in out-storage)
-			deltaSize ++
+			if (outValue != common.Hash{}) {
+				deltaSize ++
+			}
 		}
 		// compute update size
 		if (outValue != common.Hash{}) {
@@ -94,28 +96,25 @@ func main() {
 			duration := time.Since(start) + 1*time.Nanosecond
 			fmt.Printf("metric: elapsed time: %v, number = %v\n", duration.Round(1*time.Millisecond), block)
 		}
-		for tx := 0; ; tx++ {
-			if !substate.HasSubstate(block, tx) {
-				break
-			}
-			ss := substate.GetSubstate(block, tx)
-			timestamp := ss.Env.Timestamp
-			for wallet, outputAccount := range ss.OutputAlloc {
+		blockSubstates := substate.GetBlockSubstates(block)
+		for tx, st := range blockSubstates {
+			timestamp := st.Env.Timestamp
+			for wallet, outputAccount := range st.OutputAlloc {
 				var ( deltaSize int64
 				      inUpdateSize uint64
 				      outUpdateSize uint64 )
-				if inputAccount, found := ss.InputAlloc[wallet]; found {
+				if inputAccount, found := st.InputAlloc[wallet]; found {
 					deltaSize, inUpdateSize, outUpdateSize = computeStorageSizes(inputAccount.Storage, outputAccount.Storage)
 				} else {
 					deltaSize, inUpdateSize, outUpdateSize = computeStorageSizes(map[common.Hash]common.Hash{}, outputAccount.Storage)
 				}
 				fmt.Printf("metric: data %v %v %v %v %v %v %v\n",block,timestamp,tx,strings.ToLower(wallet.Hex()),deltaSize * 32, inUpdateSize * 32, outUpdateSize * 32)
 			}
-			for wallet, inputAccount := range ss.InputAlloc {
+			for wallet, inputAccount := range st.InputAlloc {
 				var ( deltaSize int64
 				      inUpdateSize uint64
 				      outUpdateSize uint64 )
-				if _, found := ss.OutputAlloc[wallet]; !found {
+				if _, found := st.OutputAlloc[wallet]; !found {
 					deltaSize, inUpdateSize, outUpdateSize = computeStorageSizes(inputAccount.Storage, map[common.Hash]common.Hash{})
 					fmt.Printf("metric: data %v %v %v %v %v %v %v\n",block,timestamp,tx,strings.ToLower(wallet.Hex()),deltaSize * 32, inUpdateSize * 32, outUpdateSize * 32)
 				}
