@@ -18,6 +18,10 @@ import (
 	cli "gopkg.in/urfave/cli.v1"
 )
 
+var (
+	gitCommit = "" // Git SHA1 commit hash of the release (set via linker flags)
+	gitDate   = ""
+)
 // chain id
 var chainID int
 var ChainIDFlag = cli.IntFlag{
@@ -201,7 +205,9 @@ func replayAction(ctx *cli.Context) error {
 	}
 
 	chainID = ctx.Int(ChainIDFlag.Name)
-	fmt.Printf("Chain ID:%v\n",chainID)
+	fmt.Printf("chain-id: %v\n",chainID)
+	fmt.Printf("git-date: %v\n", gitDate)
+	fmt.Printf("git-commit: %v\n",gitCommit)
 
 	first, ferr := strconv.ParseInt(ctx.Args().Get(0), 10, 64)
 	last, lerr := strconv.ParseInt(ctx.Args().Get(1), 10, 64)

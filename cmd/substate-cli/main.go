@@ -27,7 +27,7 @@ var (
 	gitCommit = "" // Git SHA1 commit hash of the release (set via linker flags)
 	gitDate   = ""
 
-	app = flags.NewApp(gitCommit, gitDate, "Ethereum substate command line interface")
+	app = flags.NewApp(gitCommit, gitDate, "Fantom substate command line interface")
 )
 
 func init() {
