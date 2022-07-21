@@ -88,13 +88,13 @@ func replayStorageTask(block uint64, tx int, st *substate.Substate, taskPool *su
 		} else {
 			deltaSize, inUpdateSize, outUpdateSize = computeStorageSizes(map[common.Hash]common.Hash{}, outputAccount.Storage)
 		}
-		fmt.Printf("metric: %v %v %v %v %v %v %v\n",block,timestamp,tx,wallet.Hex(),deltaSize, inUpdateSize, outUpdateSize)
+		fmt.Printf("metric: %v,%v,%v,%v,%v,%v,%v\n",block,timestamp,tx,wallet.Hex(),deltaSize, inUpdateSize, outUpdateSize)
 	}
 	// account exists in input substate but not output substate
 	for wallet, inputAccount := range st.InputAlloc {
 		if _, found := st.OutputAlloc[wallet]; !found {
 			deltaSize, inUpdateSize, outUpdateSize := computeStorageSizes(inputAccount.Storage, map[common.Hash]common.Hash{})
-			fmt.Printf("metric: %v %v %v %v %v %v %v\n",block,timestamp,tx,wallet.Hex(),deltaSize, inUpdateSize, outUpdateSize)
+			fmt.Printf("metric: %v,%v,%v,%v,%v,%v,%v\n",block,timestamp,tx,wallet.Hex(),deltaSize, inUpdateSize, outUpdateSize)
 		}
 	}
 	return nil

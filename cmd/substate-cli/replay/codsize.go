@@ -50,7 +50,7 @@ func getCodeSizeTask(block uint64, tx int, st *substate.Substate, taskPool *subs
 	timestamp := st.Env.Timestamp
 	txType := GetTxType (to, st.InputAlloc)
 	for account, accountInfo := range st.OutputAlloc {
-		fmt.Printf("metric: %v %v %v %v %v %v %v\n",
+		fmt.Printf("metric: %v,%v,%v,%v,%v,%v,%v\n",
 				block,
 				timestamp,
 				tx,
@@ -61,7 +61,7 @@ func getCodeSizeTask(block uint64, tx int, st *substate.Substate, taskPool *subs
 	}
 	for account, accountInfo := range st.InputAlloc {
 		if _, found := st.OutputAlloc[account]; !found {
-			fmt.Printf("metric: %v %v %v %v %v %v %v\n",
+			fmt.Printf("metric: %v,%v,%v,%v,%v,%v,%v\n",
 					block,
 					timestamp,
 					tx,
