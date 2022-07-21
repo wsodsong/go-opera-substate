@@ -13,7 +13,7 @@ import (
 var GetCodeSizeCommand = cli.Command{
 	Action:    getCodeSizeAction,
 	Name:      "code-size",
-	Usage:     "collects smart contract statistics",
+	Usage:     "reports code size and nonce of smart contracts in the specified block range",
 	ArgsUsage: "<blockNumFirst> <blockNumLast>",
 	Flags: []cli.Flag{
 		substate.WorkersFlag,
