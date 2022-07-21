@@ -167,7 +167,7 @@ func replayTask(block uint64, tx int, recording *substate.Substate, taskPool *su
 
 	r := outputResult.Equal(evmResult)
 	a := outputAlloc.Equal(evmAlloc)
-	if !(r && a) {
+	//if !(r && a) {
 		fmt.Printf("block: %v Transaction: %v\n", block, tx)
 		if !r {
 			fmt.Printf("inconsistent output: result\n")
@@ -184,14 +184,14 @@ func replayTask(block uint64, tx int, recording *substate.Substate, taskPool *su
 		fmt.Printf("Recorded input message:\n%s\n", jbytes)
 		jbytes, _ = json.MarshalIndent(outputAlloc, "", " ")
 		fmt.Printf("Recorded output substate:\n%s\n", jbytes)
-		jbytes, _ = json.MarshalIndent(evmAlloc, "", " ")
-		fmt.Printf("Replayed output substate:\n%s\n", jbytes)
+	//	jbytes, _ = json.MarshalIndent(evmAlloc, "", " ")
+	//	fmt.Printf("Replayed output substate:\n%s\n", jbytes)
 		jbytes, _ = json.MarshalIndent(outputResult, "", " ")
 		fmt.Printf("Recorded output result:\n%s\n", jbytes)
-		jbytes, _ = json.MarshalIndent(evmResult, "", " ")
-		fmt.Printf("Replayed output result:\n%s\n", jbytes)
-		return fmt.Errorf("inconsistent output")
-	}
+	//	jbytes, _ = json.MarshalIndent(evmResult, "", " ")
+	//	fmt.Printf("Replayed output result:\n%s\n", jbytes)
+	//	return fmt.Errorf("inconsistent output")
+	//}
 
 	return nil
 }
