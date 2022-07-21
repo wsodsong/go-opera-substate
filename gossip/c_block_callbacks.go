@@ -110,8 +110,6 @@ func consensusCallbackBeginBlockFn(
 
 		// Get stateDB
 		statedb, err := store.evm.StateDB(bs.FinalizedStateRoot)
-		fmt.Println(string(statedb.Dump(nil)))
-		panic(1)
 		if err != nil {
 			log.Crit("Failed to open StateDB", "err", err)
 		}
