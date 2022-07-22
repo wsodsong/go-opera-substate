@@ -10,8 +10,8 @@ import (
 )
 
 // record-replay: substate-cli storage command
-var ReplayStorageCommand = cli.Command{
-	Action:    replayStorageAction,
+var GetStorageUpdateSizeCommand = cli.Command{
+	Action:    getStorageUpdateSizeAction,
 	Name:      "storage-size",
 	Usage:     "returns changes in storage size by transactions in the specified block range",
 	ArgsUsage: "<blockNumFirst> <blockNumLast>",
@@ -27,7 +27,7 @@ The substate-cli storage-size command requires two arguments:
 <blockNumFirst> and <blockNumLast> are the first and
 last block of the inclusive range of blocks to replay transactions.
 
-Output log format: (block, timestamp, transaction, account, storage size change, storage size in input substate, storage size in output substate)`,
+Output log format: (block, timestamp, transaction, account, storage update size, storage size in input substate, storage size in output substate)`,
 }
 
 // computeStorageSize computes the number of non-zero storage entries
@@ -74,8 +74,8 @@ func computeStorageSizes(inUpdateSet map[common.Hash]common.Hash, outUpdateSet m
 	return deltaSize * int64(wordSize), inUpdateSize * wordSize, outUpdateSize * wordSize
 }
 
-// replayStorageTask replays storage access of accounts in each transaction
-func replayStorageTask(block uint64, tx int, st *substate.Substate, taskPool *substate.SubstateTaskPool) error {
+// getStorageUpdateSizeTask replays storage access of accounts in each transaction
+func getStorageUpdateSizeTask(block uint64, tx int, st *substate.Substate, taskPool *substate.SubstateTaskPool) error {
 	timestamp := st.Env.Timestamp
 	for wallet, outputAccount := range st.OutputAlloc {
 		var ( deltaSize int64
@@ -100,8 +100,8 @@ func replayStorageTask(block uint64, tx int, st *substate.Substate, taskPool *su
 	return nil
 }
 
-// func replayStorageAction for replay-storage command
-func replayStorageAction(ctx *cli.Context) error {
+// func getStorageUpdateSizeAction for replay-storage command
+func getStorageUpdateSizeAction(ctx *cli.Context) error {
 	var err error
 
 	if len(ctx.Args()) != 2 {
@@ -116,20 +116,20 @@ func replayStorageAction(ctx *cli.Context) error {
 	first, ferr := strconv.ParseInt(ctx.Args().Get(0), 10, 64)
 	last, lerr := strconv.ParseInt(ctx.Args().Get(1), 10, 64)
 	if ferr != nil || lerr != nil {
-		return fmt.Errorf("substate-cli storage: error in parsing parameters: block number not an integer")
+		return fmt.Errorf("substate-cli storage-size: error in parsing parameters: block number not an integer")
 	}
 	if first < 0 || last < 0 {
-		return fmt.Errorf("substate-cli storage: error: block number must be greater than 0")
+		return fmt.Errorf("substate-cli storage-size: error: block number must be greater than 0")
 	}
 	if first > last {
-		return fmt.Errorf("substate-cli storage: error: first block has larger number than last block")
+		return fmt.Errorf("substate-cli storage-size: error: first block has larger number than last block")
 	}
 
 	substate.SetSubstateFlags(ctx)
 	substate.OpenSubstateDBReadOnly()
 	defer substate.CloseSubstateDB()
 
-	taskPool := substate.NewSubstateTaskPool("substate-cli storage", replayStorageTask, uint64(first), uint64(last), ctx)
+	taskPool := substate.NewSubstateTaskPool("substate-cli storage", getStorageUpdateSizeTask, uint64(first), uint64(last), ctx)
 	err = taskPool.Execute()
 	return err
 }
