@@ -21,7 +21,6 @@ substate-cli:
 	    -o build/substate-cli \
 	    ./cmd/substate-cli
 
-
 TAG ?= "latest"
 .PHONY: opera-image
 opera-image:
