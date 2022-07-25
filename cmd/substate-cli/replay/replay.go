@@ -30,6 +30,16 @@ var ChainIDFlag = cli.IntFlag{
 		Value: 250,
 	}
 
+var ProfileEVMCallFlag = cli.BoolFlag{
+		Name:  "profiling-call",
+		Usage: "enable profiling for EVM call",
+	}
+
+var ProfileEVMOpCodeFlag = cli.BoolFlag{
+		Name:  "profiling-opcode",
+		Usage: "enable profiling for EVM opcodes",
+	}
+
 // record-replay: substate-cli replay command
 var ReplayCommand = cli.Command{
 	Action:    replayAction,
@@ -43,6 +53,8 @@ var ReplayCommand = cli.Command{
 		substate.SkipCreateTxsFlag,
 		substate.SubstateDirFlag,
 		ChainIDFlag,
+		ProfileEVMCallFlag,
+		ProfileEVMOpCodeFlag,
 	},
 	Description: `
 The substate-cli replay command requires two arguments:
@@ -221,11 +233,22 @@ func replayAction(ctx *cli.Context) error {
 		return fmt.Errorf("substate-cli replay: error: first block has larger number than last block")
 	}
 
+	if ctx.Bool(ProfileEVMCallFlag.Name) {
+		vm.ProfileEVMCall = true;
+	}
+	if ctx.Bool(ProfileEVMOpCodeFlag.Name) {
+		vm.ProfileEVMOpCode = true;
+	}
+
 	substate.SetSubstateFlags(ctx)
 	substate.OpenSubstateDBReadOnly()
 	defer substate.CloseSubstateDB()
 
 	taskPool := substate.NewSubstateTaskPool("substate-cli replay", replayTask, uint64(first), uint64(last), ctx)
 	err = taskPool.Execute()
+
+	if ctx.Bool(ProfileEVMOpCodeFlag.Name) {
+		vm.PrintStatistics()
+	}
 	return err
 }

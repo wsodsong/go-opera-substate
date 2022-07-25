@@ -111,6 +111,14 @@ var (
 		Name:  "recording",
 		Usage: "Enable recording for record/replay mechanism.",
 	}
+	ProfileEVMCallFlag = cli.BoolFlag{
+		Name:  "profiling-call",
+		Usage: "Enable profiling for EVM calls.",
+	}
+	ProfileEVMOpCodeFlag = cli.BoolFlag{
+		Name:  "profiling-opcode",
+		Usage: "Enable profiling for EVM opcodes.",
+	}
 )
 
 type GenesisTemplate struct {

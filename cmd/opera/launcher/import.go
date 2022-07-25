@@ -18,6 +18,7 @@ import (
 	"github.com/Fantom-foundation/lachesis-base/inter/idx"
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/substate"
@@ -87,6 +88,13 @@ func importEvents(ctx *cli.Context) error {
 		substate.SetSubstateFlags(ctx)
 		substate.OpenSubstateDB()
 		defer substate.CloseSubstateDB()
+	}
+
+	if ctx.Bool(ProfileEVMCallFlag.Name) {
+		vm.ProfileEVMCall = true
+	}
+	if ctx.Bool(ProfileEVMOpCodeFlag.Name) {
+		vm.ProfileEVMOpCode = true
 	}
 
 	if len(ctx.Args()) < 1 {
