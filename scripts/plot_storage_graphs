@@ -5,7 +5,10 @@
 #  contract address and observed runtime measured in nano-seconds.
 
 PROGNAME=$(basename $0)
-DATABASE=storage.db
+if [ -z ${DATABASE} ]
+then
+	DATABASE=/var/data/substate_metrics.db
+fi
 # run sqlite3 command
 #  $1: sqlite3 database filename
 #  $2: sqlite3 commmand
@@ -109,7 +112,7 @@ set format x \"%Y-%m\"
 set timefmt \"%d\"
 set ylabel \"Storage (bytes)\"
 set autoscale xfix
-plot \"${TMP_FILE}\" using (\$1):2 with points pointtype 0 notitle
+plot \"${TMP_FILE}\" using (\$1):2 with points pointtype 7 notitle
 "
 rm -f -- "$TMP_FILE"
 
@@ -127,7 +130,7 @@ set format x \"%Y-%m\"
 set timefmt \"%d\"
 set ylabel \"Storage (bytes)\"
 set autoscale xfix
-plot \"${TMP_FILE}\" using (\$1):2 with points pointtype 0 notitle
+plot \"${TMP_FILE}\" using (\$1):2 with points pointtype 7 notitle
 "
 rm -f -- "$TMP_FILE"
 

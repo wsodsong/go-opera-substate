@@ -5,7 +5,10 @@
 #  contract address and observed runtime measured in nano-seconds.
 
 PROGNAME=$(basename $0)
-DATABASE=substate_metrics.db
+if [ -z ${DATABASE} ]
+then
+	DATABASE=/var/data/substate_metrics.db
+fi
 # run sqlite3 command
 #  $1: sqlite3 database filename
 #  $2: sqlite3 commmand

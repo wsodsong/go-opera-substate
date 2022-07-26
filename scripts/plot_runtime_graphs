@@ -3,6 +3,10 @@
 # Produces performance graphs 
 
 PROGNAME=$(basename $0)
+if [ -z ${DATABASE} ]
+then
+	DATABASE=/var/data/substate_metrics.db
+fi
 
 # run sqlite3 command
 #  $1: sqlite3 database filename
@@ -24,7 +28,7 @@ trap 'rm -f -- "$TMP_FILE"' EXIT
 
 # Plotting smartcontract_invocations.png
 echo "${PROGNAME}: produce plot smartcontract_invocations.png ..."
-runsql runtime.db ".mode tabs
+runsql ${DATABASE} ".mode tabs
 .output ${TMP_FILE}
 SELECT invocations FROM summary_contract_runtime ORDER BY invocations ASC;
 "
@@ -41,7 +45,7 @@ rm -f -- "$TMP_FILE"
 
 # Plotting smartcontract_total_runtime.png
 echo "${PROGNAME}: produce plot smartcontract_total_runtime.png ..."
-runsql runtime.db ".mode tabs
+runsql ${DATABASE} ".mode tabs
 .output ${TMP_FILE}
 SELECT total_runtime/1.0e9 FROM summary_contract_runtime ORDER BY total_runtime ASC;
 "
@@ -58,7 +62,7 @@ rm -f -- "$TMP_FILE"
 
 # Plotting smartcontract_average_runtime.png
 echo "${PROGNAME}: produce plot smartcontract_average_runtime.png ..."
-runsql runtime.db ".mode tabs
+runsql ${DATABASE} ".mode tabs
 CREATE TEMP TABLE tmp_average (n NUMBER);
 INSERT INTO tmp_average SELECT 1.0e-9*total_runtime/invocations FROM summary_contract_runtime;
 .output ${TMP_FILE}
@@ -78,7 +82,7 @@ rm -f -- "$TMP_FILE"
 
 # Plotting smartcontract_percentage_runtime.png
 echo "${PROGNAME}: produce plot smartcontract_percentage_runtime.png ..."
-runsql runtime.db ".mode tabs
+runsql ${DATABASE} ".mode tabs
 .output ${TMP_FILE}
 SELECT 100.0 * total_runtime/ (SELECT sum(total_runtime) FROM summary_contract_runtime) FROM summary_contract_runtime ORDER BY total_runtime ASC;
 "
@@ -95,7 +99,7 @@ rm -f -- "$TMP_FILE"
 
 # Plotting smartcontract_combined_runtime.png
 echo "${PROGNAME}: produce plot smartcontract_combined_runtime.png ..."
-runsql runtime.db ".mode tabs
+runsql ${DATABASE} ".mode tabs
 .output ${TMP_FILE}
 SELECT total_runtime/1.0e9, invocations FROM summary_contract_runtime ORDER BY total_runtime ASC;
 "
