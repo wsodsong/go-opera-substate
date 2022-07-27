@@ -95,6 +95,9 @@ func importEvents(ctx *cli.Context) error {
 	}
 	if ctx.Bool(ProfileEVMOpCodeFlag.Name) {
 		vm.ProfileEVMOpCode = true
+		defer func() {
+			vm.PrintStatistics()
+		}()
 	}
 
 	if len(ctx.Args()) < 1 {

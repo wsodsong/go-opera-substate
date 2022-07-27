@@ -60,8 +60,6 @@ func substateDumpAction(ctx *cli.Context) error {
 		return fmt.Errorf("substate-cli dump cammand requires exactly 2 arguments")
 	}
 
-	fmt.Println(ctx)
-
 	first, ferr := strconv.ParseInt(ctx.Args().Get(0), 10, 64)
 	last, lerr := strconv.ParseInt(ctx.Args().Get(1), 10, 64)
 	if ferr != nil || lerr != nil {
