@@ -5,8 +5,7 @@
 #  contract address and observed runtime measured in nano-seconds.
 
 PROGNAME=$(basename $0)
-if [ -z ${DATABASE} ]
-then
+if [ -z ${DATABASE} ]; then
 	DATABASE=/var/data/substate_metrics.db
 fi
 # run sqlite3 command
@@ -61,8 +60,15 @@ echo "${PROGNAME}: import csv-file..."
 runsql ${DATABASE} ".mode csv
 .import ${TMP_FILE} recorded_contract_runtime"
 
-# Compute summary
+# Compute summary if both recordeed and replayed tables exist
 echo "${PROGNAME}: create speed comparison table..."
+HasReplayedTable=`sqlite3 /home/wawa/fantom/profiling/substate_metrics.db "SELECT name FROM sqlite_master WHERE type='table' AND name='contract_runtime';"`
+
+if [ -z ${HasReplayedTable} ]; then
+	echo "${PROGNAME}: contract_runtime table does not exist. Comparison table is not created. Profiling evm call in replay mode before continue."
+	exit 0
+fi
+
 runsql ${DATABASE} "DROP TABLE IF EXISTS summary_record_replay "
 runsql ${DATABASE} "CREATE TABLE summary_record_replay(block_number INTEGER NOT NULL, tx_number INTEGER NOT NULL, contract TEXT NOT NULL, speedup NUMERIC NOT NULL);"
 runsql ${DATABASE} "INSERT INTO summary_record_replay
@@ -71,7 +77,7 @@ SELECT
 	rec.tx_number,
 	rec.contract,
 	(rec.runtime/1.0e9) / (rep.runtime/1.0e9)
-FROM recorded_contract_runtime rec, contract_runtime rep
+FROM recorded_contract_runtime rec, recorded_contract_runtime rep
 WHERE rec.block_number = rep.block_number
 	AND rec.tx_number = rep.tx_number
 	AND rec.contract = rep.contract;"

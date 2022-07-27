@@ -5,9 +5,11 @@
 #  contract address and observed runtime measured in nano-seconds.
 
 PROGNAME=$(basename $0)
-if [ -z ${DATABASE} ]
-then
+if [ -z ${DATABASE} ]; then
 	DATABASE=/var/data/substate_metrics.db
+fi
+if [ -z ${OUTDIR} ]; then
+	OUTDIR=. 
 fi
 # run sqlite3 command
 #  $1: sqlite3 database filename
@@ -29,7 +31,7 @@ trap 'rm -f -- "$TMP_FILE"' EXIT
 
 
 # Plotting
-PNG_NAME=nonce.png
+PNG_NAME=${OUTDIR}/nonce.png
 echo "${PROGNAME}: produce plot ${PNG_NAME} ..."
 runsql ${DATABASE} ".mode tabs
 .output ${TMP_FILE}
@@ -46,7 +48,7 @@ plot \"${TMP_FILE}\" notitle
 "
 rm -f -- "$TMP_FILE"
 
-PNG_NAME=code_size.png
+PNG_NAME=${OUTDIR}/code_size.png
 echo "${PROGNAME}: produce plot ${PNG_NAME} ..."
 runsql ${DATABASE} ".mode tabs
 .output ${TMP_FILE}
@@ -67,7 +69,7 @@ plot \"${TMP_FILE}\" using 1:2 with points pointtype 7 axes x1y1 title 'Code siz
 "
 rm -f -- "$TMP_FILE"
 
-PNG_NAME=code_size_growth.png
+PNG_NAME=${OUTDIR}/code_size_growth.png
 echo "${PROGNAME}: produce plot ${PNG_NAME} ..."
 runsql ${DATABASE} ".mode tabs
 .output ${TMP_FILE}
