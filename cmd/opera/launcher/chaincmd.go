@@ -34,6 +34,8 @@ Events are fully verified by default, unless overridden by check=false flag.`,
 					// record-replay: geth import --substatedir flag
 					substate.SubstateDirFlag,
 					RecordingFlag,
+					ProfileEVMCallFlag,
+					ProfileEVMOpCodeFlag,
 				},
 				Description: `
 The import command imports events from RLP-encoded files.

@@ -5,7 +5,9 @@
 #  contract address and observed runtime measured in nano-seconds.
 
 PROGNAME=$(basename $0)
-DATABASE=../substate_metrics.db
+if [ -z ${DATABASE} ]; then
+	DATABASE=/var/data/substate_metrics.db
+fi
 # run sqlite3 command
 #  $1: sqlite3 database filename
 #  $2: sqlite3 commmand
@@ -39,7 +41,12 @@ trap 'rm -f -- "$TMP_FILE"' EXIT
 # Convert log output to a csv file
 echo "${PROGNAME}: convert log-file to csv-file..."
 grep "^metric" $1 | sed 's/^metric: //' >$TMP_FILE
-cat codesize.csv >> $TMP_FILE
+# check whether file exists
+if [ ! -f "codesize_pre_4564036.csv" ]; then
+   echo "${PROGNAME}: codesize_pre_4564036.csv does not exist. Output may be inaccurate."
+else
+   cat codesize_pre_4564036.csv >> ${TMP_FILE}
+fi
 
 # Create sqlite3 table (drop old one)
 echo "${PROGNAME}: create sqlite3 tables..."
