@@ -58,7 +58,7 @@ runsql ${DATABASE} "CREATE TABLE opcode_frequency (
 runsql ${DATABASE} "DROP TABLE IF EXISTS opcode_runtime;"
 runsql ${DATABASE} "CREATE TABLE opcode_runtime ( 
 			opcode TEXT NOT NULL, 
-			total_runtime INTEGER NOT NULL, 
+			total_runtime_ns INTEGER NOT NULL, 
 			PRIMARY KEY (opcode));"
 runsql ${DATABASE} "DROP TABLE IF EXISTS instruction_frequency;"
 runsql ${DATABASE} "CREATE TABLE instruction_frequency ( 
@@ -77,7 +77,7 @@ grep "^opcode-freq" $1 | sed 's/^opcode-freq: //' > ${TMP_FILE}
 runsql ${DATABASE} ".mode csv
 .import ${TMP_FILE} opcode_frequency"
 
-grep "^opcode-total" $1 | sed 's/^opcode-total: //' > ${TMP_FILE}
+grep "^opcode-runtime" $1 | sed 's/^opcode-runtime: //' > ${TMP_FILE}
 runsql ${DATABASE} ".mode csv
 .import ${TMP_FILE} opcode_runtime"
 
