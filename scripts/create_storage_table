@@ -97,7 +97,7 @@ runsql ${DATABASE} "DROP TABLE IF EXISTS storage_update;"
 echo "${PROGNAME}: create views..."
 # error check
 echo "${PROGNAME}: Detect errors in storage table where storage size is smaller than substate update size"
-runsql ${DATABASE} "SELECT COUNT(*) FROM storage WHERE storage_bytes < out_update_size OR storage_bytes - storage_update_bytes < in_update_size;"
+runsql ${DATABASE} "SELECT * FROM storage WHERE (storage_bytes - out_update_size) < 0 OR (storage_bytes - storage_update_bytes - in_update_size) < 0 limit 10;"
 
 # views
 # account storage

@@ -54,7 +54,7 @@ PNG_NAME=${OUTDIR}/opcode_runtime.png
 echo "${PROGNAME}: produce plot ${PNG_NAME} ..."
 runsql ${DATABASE} ".mode tabs
 .output ${TMP_FILE}
-SELECT ROW_NUMBER() OVER (ORDER BY total_runtime desc) AS id, opcode, total_runtime FROM opcode_runtime ORDER BY total_runtime DESC LIMIT 20;
+SELECT ROW_NUMBER() OVER (ORDER BY total_runtime_ns desc) AS id, opcode, total_runtime_ns FROM opcode_runtime ORDER BY total_runtime_ns DESC LIMIT 20;
 "
 gnuplot <<< "
 set terminal pngcairo size 800, 600
@@ -68,11 +68,11 @@ plot \"${TMP_FILE}\" using 1:3:xtic(2) with boxes notitle
 "
 rm -f -- "$TMP_FILE"
 
-PNG_NAME=${OUTDIR}/instruction_frequency.png
+PNG_NAME=${OUTDIR}/instruction_frequency_top20.png
 echo "${PROGNAME}: produce plot ${PNG_NAME} ..."
 runsql ${DATABASE} ".mode tabs
 .output ${TMP_FILE}
-SELECT execution_freq, instructions FROM instruction_frequency ORDER BY execution_freq ASC;
+SELECT execution_freq, instructions FROM instruction_frequency ORDER BY instructions DESC LIMIT 20;
 "
 gnuplot <<< "
 set terminal pngcairo size 800, 600
@@ -86,11 +86,29 @@ plot \"${TMP_FILE}\" using 1:2 with boxes notitle
 "
 rm -f -- "$TMP_FILE"
 
-PNG_NAME=${OUTDIR}/step_length_frequency.png
+PNG_NAME=${OUTDIR}/instruction_frequency_bottom20.png
 echo "${PROGNAME}: produce plot ${PNG_NAME} ..."
 runsql ${DATABASE} ".mode tabs
 .output ${TMP_FILE}
-SELECT instruction_length, contracts FROM step_length_frequency ORDER BY contracts;
+SELECT execution_freq, instructions FROM instruction_frequency ORDER BY instructions ASC LIMIT 20;
+"
+gnuplot <<< "
+set terminal pngcairo size 800, 600
+set output \"${PNG_NAME}\"
+set xlabel \"Number of times instruction executed\"
+set ylabel \"Instruction count\"
+set style fill solid
+set boxwidth 0.5
+set xtics rotate
+plot \"${TMP_FILE}\" using 1:2 with boxes notitle
+"
+rm -f -- "$TMP_FILE"
+
+PNG_NAME=${OUTDIR}/step_length_frequency_top20.png
+echo "${PROGNAME}: produce plot ${PNG_NAME} ..."
+runsql ${DATABASE} ".mode tabs
+.output ${TMP_FILE}
+SELECT instruction_length, contracts FROM step_length_frequency ORDER BY contracts DESC LIMIT 20;
 "
 gnuplot <<< "
 set terminal pngcairo size 800, 600
