@@ -3,7 +3,9 @@
 Fantom's off-the-chain testing framework based on [Transaction Substate Recorder/Replayer](https://github.com/verovm/record-replay).
 
 ## Building the Recorder/Replayer
-To build all programs, run ``` make all ```.   You can find ```opera``` and ```substate-cli``` in build directory
+To build all programs, run ``` make all ```.   You can find ```opera``` and ```substate-cli``` in the build directory.
+
+It should be noted that this version of ```opera``` client requires  [a modified version of go-ethereum](https://github.com/b-scholz/go-ethereum/tree/rr1.10.8-ftm-rc4-vm) which contains ```substate``` package. 
 
 ## Running the recorder
 The recorder records transaction substates via ```opera import events``` command with the ```--recording``` option.
