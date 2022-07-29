@@ -22,7 +22,7 @@ function runsql () {
 
 # check number of arguments
 if [ "$#" -ne 1 ]; then
-    echo "${PROGNAME}: specify log-file as single argument"
+    echo "${PROGNAME}: specify log-file as single argument."
     exit 1
 fi
 

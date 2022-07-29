@@ -22,7 +22,7 @@ function runsql () {
 
 # check number of arguments
 if [ "$#" -ne 1 ]; then
-    echo "${PROGNAME}: specify log-file as single argument"
+    echo "${PROGNAME}: specify log-file as single argument."
     exit 1
 fi
 
@@ -44,7 +44,7 @@ echo "${PROGNAME}: convert log-file to csv-file..."
 grep "^metric" $1 | sed 's/^metric: //' > ${TMP_FILE}
 # check whether file exists
 if [ ! -f "storage_pre_4564036.csv" ]; then
-   echo "${PROGNAME}: storage_pre_4564036.csv does not exist. Output may be inaccurate."
+   echo "${PROGNAME}: warning: storage_pre_4564036.csv does not exist. Output may be inaccurate!"
 else
    cat storage_pre_4564036.csv >> ${TMP_FILE}
 fi
@@ -94,12 +94,13 @@ FROM storage_update;"
 
 runsql ${DATABASE} "DROP TABLE IF EXISTS storage_update;"
 
-echo "${PROGNAME}: create views..."
 # error check
-echo "${PROGNAME}: Detect errors in storage table where storage size is smaller than substate update size"
-runsql ${DATABASE} "SELECT * FROM storage WHERE (storage_bytes - out_update_size) < 0 OR (storage_bytes - storage_update_bytes - in_update_size) < 0 limit 10;"
+echo "${PROGNAME}: find errors in storage table where storage size is smaller than substate update size..."
+error_rows=`runsql ${DATABASE} "SELECT COUNT(*) FROM storage WHERE (storage_bytes - out_update_size) < 0 OR (storage_bytes - storage_update_bytes - in_update_size) < 0 limit 10;"`
+echo "${PROGNAME}: ${error_rows} error entries found."
 
 # views
+echo "${PROGNAME}: create views..."
 # account storage
 runsql ${DATABASE} "DROP VIEW IF EXISTS v_max_contract_storage;"
 runsql ${DATABASE} "CREATE VIEW v_max_contract_storage AS SELECT contract, MAX(storage_bytes) AS storage_bytes FROM storage GROUP BY contract;"

@@ -22,7 +22,7 @@ function runsql () {
 
 # check number of arguments
 if [ "$#" -ne 1 ]; then
-    echo "${PROGNAME}: specify log-file as single argument"
+    echo "${PROGNAME}: specify log-file as single argument."
     exit 1
 fi
 
@@ -43,7 +43,7 @@ echo "${PROGNAME}: convert log-file to csv-file..."
 grep "^metric" $1 | sed 's/^metric: //' >$TMP_FILE
 # check whether file exists
 if [ ! -f "codesize_pre_4564036.csv" ]; then
-   echo "${PROGNAME}: codesize_pre_4564036.csv does not exist. Output may be inaccurate."
+   echo "${PROGNAME}: warning: codesize_pre_4564036.csv does not exist. Output may be inaccurate!"
 else
    cat codesize_pre_4564036.csv >> ${TMP_FILE}
 fi

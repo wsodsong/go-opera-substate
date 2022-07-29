@@ -22,7 +22,7 @@ function runsql () {
 
 # check number of arguments
 if [ "$#" -ne 1 ]; then
-    echo "${PROGNAME}: specify log-file as single argument"
+    echo "${PROGNAME}: specify log-file as single argument."
     exit 1
 fi
 
@@ -62,7 +62,7 @@ runsql ${DATABASE} ".mode csv
 
 # Compute summary if both recordeed and replayed tables exist
 echo "${PROGNAME}: create speed comparison table..."
-HasReplayedTable=`sqlite3 /home/wawa/fantom/profiling/substate_metrics.db "SELECT name FROM sqlite_master WHERE type='table' AND name='contract_runtime';"`
+HasReplayedTable=`runsql ${DATABASE} "SELECT name FROM sqlite_master WHERE type='table' AND name='contract_runtime';"`
 
 if [ -z ${HasReplayedTable} ]; then
 	echo "${PROGNAME}: contract_runtime table does not exist. Comparison table is not created. Profiling evm call in replay mode before continue."
