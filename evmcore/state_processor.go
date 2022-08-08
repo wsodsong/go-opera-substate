@@ -30,7 +30,6 @@ import (
 
 	"github.com/Fantom-foundation/go-opera/utils/signers/gsignercache"
 	"github.com/Fantom-foundation/go-opera/utils/signers/internaltx"
-
 )
 
 // StateProcessor is a basic Processor, which takes care of transitioning
@@ -74,7 +73,6 @@ func (p *StateProcessor) Process(
 		blockNumber  = block.Number
 		signer       = gsignercache.Wrap(types.MakeSigner(p.config, header.Number))
 	)
-	// fmt.Printf("\nBlock: %v\n", blockNumber)
 	// Iterate over and process the individual transactions
 	for i, tx := range block.Transactions {
 		msg, err := TxAsMessage(tx, signer, header.BaseFee)
@@ -92,7 +90,7 @@ func (p *StateProcessor) Process(
 		if err != nil {
 			return nil, nil, nil, fmt.Errorf("could not apply tx %d [%v]: %w", i, tx.Hash().Hex(), err)
 		}
-		if substate.RecordReplay { 
+		if substate.RecordReplay {
 			// save tx substate into DBs, merge block hashes to env
 			etherBlock := block.RecordingEthBlock()
 			recording := substate.NewSubstate(
@@ -103,7 +101,7 @@ func (p *StateProcessor) Process(
 				substate.NewSubstateResult(receipt),
 			)
 			substate.PutSubstate(block.NumberU64(), i, recording)
-	        }
+		}
 		receipts = append(receipts, receipt)
 		allLogs = append(allLogs, receipt.Logs...)
 	}

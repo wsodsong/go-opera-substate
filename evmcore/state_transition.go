@@ -291,11 +291,11 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 		var start time.Time
 		// Increment the nonce for the next transaction
 		st.state.SetNonce(msg.From(), st.state.GetNonce(sender.Address())+1)
-		if (vm.ProfileEVMCall) {
+		if vm.ProfileEVMCall {
 			start = time.Now()
 		}
-			ret, st.gas, vmerr = st.evm.Call(sender, st.to(), st.data, st.gas, st.value)
-		if (vm.ProfileEVMCall) {
+		ret, st.gas, vmerr = st.evm.Call(sender, st.to(), st.data, st.gas, st.value)
+		if vm.ProfileEVMCall {
 			elapsed := time.Since(start)
 			fmt.Printf("call: %v,%v,%v,%v\n", st.evm.Context.BlockNumber, st.msg.Nonce(), st.to(), elapsed.Nanoseconds())
 		}

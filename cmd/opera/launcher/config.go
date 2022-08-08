@@ -80,7 +80,6 @@ var (
 		Usage: "Allow to use experimental genesis file.",
 	}
 
-
 	RPCGlobalGasCapFlag = cli.Uint64Flag{
 		Name:  "rpc.gascap",
 		Usage: "Sets a cap on gas that can be used in ftm_call/estimateGas (0=infinite)",
