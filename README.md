@@ -2,7 +2,7 @@
 
 Fantom's off-the-chain testing framework based on [Transaction Substate Recorder/Replayer](https://github.com/verovm/record-replay).
 
-## Building the Recorder/Replayer
+## Building the Recorder
 To build all programs, run ``` make all ```.   You can find ```opera``` and ```substate-cli``` in the build directory.
 
 It should be noted that this version of ```opera``` client requires  [a modified version of go-ethereum](https://github.com/b-scholz/go-ethereum/tree/rr1.10.8-ftm-rc4-vm) which contains ```substate``` package. 
@@ -19,25 +19,6 @@ The substate database is stored in ```substate.fantom``` directory by default. T
 ```
 opera import events --recording --substatedir /path/to/substate_directory fantom_exported_events
 ```
-
-## Running the replayer
-To replay substrate in a given block range,
-```shell
-substate-cli replay 0 41000000
-```
-The command replays transactions from block 0 to block 41000000. If the execution result in the replayer does not match the recorder result, it is immediately terminated with an error message.
-By default, ```substate-cli``` executes using 4 worker threads and reads the substate database from ./substate.fantom directory. These parameters can be adjusted. The number of worker threads can be set via ```--workers``` option.
- ```shell
-substate-cli replay --workers 32 0 41000000
-```
-
-If substate database is located in another location, the directory path can be explicitly specified via the``` --substatedir``` option.
-```shell
-substate-cli replay --substatedir /path/to/substate_directory 0 41000000
-```
-Substates of the first 41 million blocks can be downloaded from [here](https://drive.google.com/file/d/1oAJAdD3Sv9ALuPnEGoMfJTRBv0hYFBc8/view?usp=sharing)
-
-More details of ```substate-cli``` can be found in [substate-cli/README.md](cmd/substate-cli/README.md)
 
 # Opera 
 
