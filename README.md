@@ -1,3 +1,25 @@
+# Fantom Substate Recorder/Replayer
+
+Fantom's off-the-chain testing framework based on [Transaction Substate Recorder/Replayer](https://github.com/verovm/record-replay).
+
+## Building the Recorder
+The recorder is integrated to opera client. To build an opera client, see [Building the source](#building-the-source) section
+
+It should be noted that this version of ```opera``` client requires  [a modified version of go-ethereum](https://github.com/b-scholz/go-ethereum/tree/rr1.10.8-ftm-rc4-vm) which contains ```substate``` package.
+
+## Running the recorder
+The recorder records transaction substates via ```opera import events``` command with the ```--recording``` option.
+
+```shell
+opera import events --recording fantom_exported_events
+```
+
+The substate database is stored in ```substate.fantom``` directory by default. The substate directory can optionally be set using the ```--substatedir``` option.
+
+```
+opera import events --recording --substatedir /path/to/substate_directory fantom_exported_events
+```
+
 # Opera 
 
 EVM-compatible chain secured by the Lachesis consensus algorithm.

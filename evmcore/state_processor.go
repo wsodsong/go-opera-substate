@@ -26,6 +26,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/ethereum/go-ethereum/substate"
 
 	"github.com/Fantom-foundation/go-opera/utils/signers/gsignercache"
 	"github.com/Fantom-foundation/go-opera/utils/signers/internaltx"
@@ -88,6 +89,18 @@ func (p *StateProcessor) Process(
 		}
 		if err != nil {
 			return nil, nil, nil, fmt.Errorf("could not apply tx %d [%v]: %w", i, tx.Hash().Hex(), err)
+		}
+		if substate.RecordReplay {
+			// save tx substate into DBs, merge block hashes to env
+			etherBlock := block.RecordingEthBlock()
+			recording := substate.NewSubstate(
+				statedb.SubstatePreAlloc,
+				statedb.SubstatePostAlloc,
+				substate.NewSubstateEnv(etherBlock, statedb.SubstateBlockHashes),
+				substate.NewSubstateMessage(&msg),
+				substate.NewSubstateResult(receipt),
+			)
+			substate.PutSubstate(block.NumberU64(), i, recording)
 		}
 		receipts = append(receipts, receipt)
 		allLogs = append(allLogs, receipt.Logs...)

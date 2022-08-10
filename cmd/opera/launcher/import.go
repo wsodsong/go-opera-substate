@@ -18,8 +18,10 @@ import (
 	"github.com/Fantom-foundation/lachesis-base/inter/idx"
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/ethereum/go-ethereum/substate"
 	"github.com/status-im/keycard-go/hexutils"
 	"gopkg.in/urfave/cli.v1"
 
@@ -29,9 +31,11 @@ import (
 	"github.com/Fantom-foundation/go-opera/inter"
 	"github.com/Fantom-foundation/go-opera/opera/genesisstore"
 	"github.com/Fantom-foundation/go-opera/utils/ioread"
+
 )
 
 func importEvm(ctx *cli.Context) error {
+
 	if len(ctx.Args()) < 1 {
 		utils.Fatalf("This command requires an argument.")
 	}
@@ -77,6 +81,25 @@ func importEvmFile(fn string, gdb *gossip.Store) error {
 }
 
 func importEvents(ctx *cli.Context) error {
+
+	if ctx.Bool(RecordingFlag.Name) {
+	        // OpenSubstateDB
+		substate.RecordReplay = true
+		substate.SetSubstateFlags(ctx)
+		substate.OpenSubstateDB()
+		defer substate.CloseSubstateDB()
+	}
+
+	if ctx.Bool(ProfileEVMCallFlag.Name) {
+		vm.ProfileEVMCall = true
+	}
+	if ctx.Bool(ProfileEVMOpCodeFlag.Name) {
+		vm.ProfileEVMOpCode = true
+		defer func() {
+			vm.PrintStatistics()
+		}()
+	}
+
 	if len(ctx.Args()) < 1 {
 		utils.Fatalf("This command requires an argument.")
 	}

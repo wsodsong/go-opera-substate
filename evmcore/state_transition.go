@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -287,9 +288,17 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 	if contractCreation {
 		ret, _, st.gas, vmerr = st.evm.Create(sender, st.data, st.gas, st.value)
 	} else {
+		var start time.Time
 		// Increment the nonce for the next transaction
 		st.state.SetNonce(msg.From(), st.state.GetNonce(sender.Address())+1)
+		if vm.ProfileEVMCall {
+			start = time.Now()
+		}
 		ret, st.gas, vmerr = st.evm.Call(sender, st.to(), st.data, st.gas, st.value)
+		if vm.ProfileEVMCall {
+			elapsed := time.Since(start)
+			fmt.Printf("call: %v,%v,%v,%v\n", st.evm.Context.BlockNumber, st.msg.Nonce(), st.to(), elapsed.Nanoseconds())
+		}
 	}
 	// use 10% of not used gas
 	if !st.internal() {
