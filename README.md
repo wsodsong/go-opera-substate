@@ -2,6 +2,9 @@
 
 Fantom's off-the-chain testing framework based on [Transaction Substate Recorder/Replayer](https://github.com/verovm/record-replay).
 
+## Disclaimer
+This is a modified version of opera for measurment purpose. Do not use for validator.
+
 ## Building the Recorder
 The recorder is integrated to opera client. To build an opera client, see [Building the source](#building-the-source) section
 
