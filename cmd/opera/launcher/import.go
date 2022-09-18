@@ -32,6 +32,7 @@ import (
 	"github.com/Fantom-foundation/go-opera/inter"
 	"github.com/Fantom-foundation/go-opera/opera/genesisstore"
 	"github.com/Fantom-foundation/go-opera/utils/ioread"
+	"github.com/Fantom-foundation/go-opera/evmcore"
 
 )
 
@@ -92,14 +93,14 @@ func importEvents(ctx *cli.Context) error {
 	}
 
 	if ctx.Bool(ProfileEVMCallFlag.Name) {
-		vm.ProfileEVMCall = true
+		evmcore.ProfileEVMCall = true
 	}
 	if ctx.Bool(MicroProfilingFlag.Name) {
 		vm.MicroProfiling = true
 		ctx, cancel := context.WithCancel(context.Background())
 		ch := make(chan struct{})
 		stats := vm.NewMicroProfileStatistic()
-		go vm.MicroProfilingCollector(0, ctx, ch, stats)
+		go vm.MicroProfilingCollector(ctx, ch, stats)
 		defer func() {
 			(cancel)() // stop data collector
 			<-ch  	   // wait for data collector to finish
