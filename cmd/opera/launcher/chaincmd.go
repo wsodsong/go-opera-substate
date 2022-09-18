@@ -35,7 +35,7 @@ Events are fully verified by default, unless overridden by check=false flag.`,
 					substate.SubstateDirFlag,
 					RecordingFlag,
 					ProfileEVMCallFlag,
-					ProfileEVMOpCodeFlag,
+					MicroProfilingFlag,
 				},
 				Description: `
 The import command imports events from RLP-encoded files.
