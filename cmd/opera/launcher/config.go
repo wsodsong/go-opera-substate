@@ -114,9 +114,19 @@ var (
 		Name:  "profiling-call",
 		Usage: "Enable profiling for EVM calls.",
 	}
-	ProfileEVMOpCodeFlag = cli.BoolFlag{
-		Name:  "profiling-opcode",
-		Usage: "Enable profiling for EVM opcodes.",
+	MicroProfilingFlag = cli.BoolFlag{
+		Name:  "micro-profiling",
+		Usage: "Enable micro-profiling of EVM.",
+	}
+	DatabaseNameFlag = cli.StringFlag{
+		Name:  "db",
+		Usage: "Set a database name for storing micro-profiling results",
+		Value: "./profiling.db",
+	}
+	ChannelBufferSizeFlag = cli.IntFlag{
+		Name:  "buffer-size",
+		Usage: "Set a buffer size for profiling channel",
+		Value: 100000,
 	}
 )
 

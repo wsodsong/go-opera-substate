@@ -13,6 +13,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"context"
 
 	"github.com/Fantom-foundation/lachesis-base/hash"
 	"github.com/Fantom-foundation/lachesis-base/inter/idx"
@@ -31,6 +32,7 @@ import (
 	"github.com/Fantom-foundation/go-opera/inter"
 	"github.com/Fantom-foundation/go-opera/opera/genesisstore"
 	"github.com/Fantom-foundation/go-opera/utils/ioread"
+	"github.com/Fantom-foundation/go-opera/evmcore"
 
 )
 
@@ -91,12 +93,22 @@ func importEvents(ctx *cli.Context) error {
 	}
 
 	if ctx.Bool(ProfileEVMCallFlag.Name) {
-		vm.ProfileEVMCall = true
+		evmcore.ProfileEVMCall = true
 	}
-	if ctx.Bool(ProfileEVMOpCodeFlag.Name) {
-		vm.ProfileEVMOpCode = true
+	if ctx.Bool(MicroProfilingFlag.Name) {
+		vm.MicroProfiling = true
+		vm.MicroProfilingBufferSize = ctx.Int(ChannelBufferSizeFlag.Name)
+		vm.MicroProfilingDB = ctx.String(DatabaseNameFlag.Name)
+		ctx, cancel := context.WithCancel(context.Background())
+		ch := make(chan struct{})
+		stats := vm.NewMicroProfileStatistic()
+		go vm.MicroProfilingCollector(ctx, ch, stats)
 		defer func() {
-			vm.PrintStatistics()
+			(cancel)() // stop data collector
+			<-ch  	   // wait for data collector to finish
+			// TODO: get chainID from cli
+			version := fmt.Sprintf("git-date:%v, git-commit:%v, chaind-id:%v", gitDate, gitCommit, 250)
+			stats.Dump(version)
 		}()
 	}
 
