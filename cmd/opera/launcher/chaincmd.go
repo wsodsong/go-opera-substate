@@ -36,6 +36,8 @@ Events are fully verified by default, unless overridden by check=false flag.`,
 					RecordingFlag,
 					ProfileEVMCallFlag,
 					MicroProfilingFlag,
+					DatabaseNameFlag,
+					ChannelBufferSizeFlag,
 				},
 				Description: `
 The import command imports events from RLP-encoded files.

@@ -97,6 +97,8 @@ func importEvents(ctx *cli.Context) error {
 	}
 	if ctx.Bool(MicroProfilingFlag.Name) {
 		vm.MicroProfiling = true
+		vm.MicroProfilingBufferSize = ctx.Int(ChannelBufferSizeFlag.Name)
+		vm.MicroProfilingDB = ctx.String(DatabaseNameFlag.Name)
 		ctx, cancel := context.WithCancel(context.Background())
 		ch := make(chan struct{})
 		stats := vm.NewMicroProfileStatistic()
