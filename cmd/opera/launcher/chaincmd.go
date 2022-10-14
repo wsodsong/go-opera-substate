@@ -2,7 +2,6 @@ package launcher
 
 import (
 	"github.com/ethereum/go-ethereum/cmd/utils"
-	"github.com/ethereum/go-ethereum/substate"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -32,7 +31,7 @@ Events are fully verified by default, unless overridden by check=false flag.`,
 				Flags: []cli.Flag{
 					DataDirFlag,
 					// record-replay: geth import --substatedir flag
-					substate.SubstateDirFlag,
+					SubstateDirFlag,
 					RecordingFlag,
 					ProfileEVMCallFlag,
 					MicroProfilingFlag,

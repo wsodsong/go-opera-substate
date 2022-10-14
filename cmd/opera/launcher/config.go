@@ -106,6 +106,11 @@ var (
 	}
 
 	// Record/replay
+	SubstateDirFlag = cli.StringFlag{
+		Name:  "substatedir",
+		Usage: "Data directory for substate recorder/replayer",
+		Value: "./substate.fantom",
+	}
 	RecordingFlag = cli.BoolFlag{
 		Name:  "recording",
 		Usage: "Enable recording for record/replay mechanism.",
