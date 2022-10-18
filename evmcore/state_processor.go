@@ -101,7 +101,6 @@ func (p *StateProcessor) Process(
 			return nil, nil, nil, fmt.Errorf("could not apply tx %d [%v]: %w", i, tx.Hash().Hex(), err)
 		}
 		if substate.RecordReplay {
-			fmt.Printf("Processed blk %v, tx %v, tx-hash %v, err %v\n", block.NumberU64(), txCounter, tx.Hash(), err)
 			// save tx substate into DBs, merge block hashes to env
 			etherBlock := block.RecordingEthBlock()
 			recording := substate.NewSubstate(
